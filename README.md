@@ -22,3 +22,6 @@ A clean onboarding path for applicants and verifiers, with minimal disclosure an
 
 ## Key use cases
 Grant applications, compliance checks, age verification, and trust-based access decisions.
+
+## Trust model
+The verifier receives a boolean result and a proof attestation, not the underlying attributes.
