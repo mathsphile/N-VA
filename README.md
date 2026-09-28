@@ -55,3 +55,6 @@ We continuously refine the product based on user and verifier feedback to improv
 
 ## Design principle
 Every product decision should protect privacy before convenience.
+
+## Rollout plan
+Start with controlled pilots, collect real feedback, and expand once trust and usability are validated.
