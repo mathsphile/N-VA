@@ -67,3 +67,6 @@ A secure proof layer for modern access decisions, built around privacy, clarity,
 
 ## Production readout
 The project is ready to evolve through iterative feedback, stakeholder review, and measured usability improvements.
+
+## Feedback milestone
+This release reflects the first major refinement cycle after incorporating design, product, and trust feedback.
