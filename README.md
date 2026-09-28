@@ -13,3 +13,6 @@ Verify the claim, not the data.
 
 ## Problem statement
 Existing verification flows require users to reveal too much information. That slows onboarding and undermines trust.
+
+## Vision
+Build a respectful identity layer where people can prove eligibility without leaking their personal details.
