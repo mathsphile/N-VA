@@ -37,3 +37,6 @@ Foundations, civic programs, educational institutions, and digital services that
 
 ## Differentiator
 N-VA balances privacy, trust, and usability in one system instead of forcing users to trade data for access.
+
+## Short pitch
+N-VA is an access-control layer for trust where proof is private by design.
