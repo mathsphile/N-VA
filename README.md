@@ -16,3 +16,6 @@ Existing verification flows require users to reveal too much information. That s
 
 ## Vision
 Build a respectful identity layer where people can prove eligibility without leaking their personal details.
+
+## User experience
+A clean onboarding path for applicants and verifiers, with minimal disclosure and clear proof results.
