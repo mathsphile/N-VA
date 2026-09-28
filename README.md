@@ -61,3 +61,6 @@ Start with controlled pilots, collect real feedback, and expand once trust and u
 
 ## Closing statement
 N-VA makes trust verifiable without sacrificing privacy.
+
+## Final summary
+A secure proof layer for modern access decisions, built around privacy, clarity, and trust.
