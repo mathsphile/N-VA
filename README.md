@@ -19,3 +19,6 @@ Build a respectful identity layer where people can prove eligibility without lea
 
 ## User experience
 A clean onboarding path for applicants and verifiers, with minimal disclosure and clear proof results.
+
+## Key use cases
+Grant applications, compliance checks, age verification, and trust-based access decisions.
