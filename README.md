@@ -43,3 +43,6 @@ N-VA is an access-control layer for trust where proof is private by design.
 
 ## Roadmap
 Phase 1: private claims and proof generation. Phase 2: verifier dashboards and attestation flows. Phase 3: broader ecosystem integrations.
+
+## Team goal
+Create a trustworthy verification system that respects user privacy from day one.
