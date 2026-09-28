@@ -28,3 +28,6 @@ The verifier receives a boolean result and a proof attestation, not the underlyi
 
 ## Privacy promise
 The platform minimizes data collection, keeps sensitive information local, and reveals only what is required.
+
+## Product positioning
+N-VA sits between identity verification and zero-knowledge trust infrastructure, designed for real-world access decisions.
