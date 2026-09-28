@@ -46,3 +46,6 @@ Phase 1: private claims and proof generation. Phase 2: verifier dashboards and a
 
 ## Team goal
 Create a trustworthy verification system that respects user privacy from day one.
+
+## Success metric
+Reduce unnecessary data disclosure while increasing verification confidence and user trust.
