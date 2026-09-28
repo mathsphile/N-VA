@@ -40,3 +40,6 @@ N-VA balances privacy, trust, and usability in one system instead of forcing use
 
 ## Short pitch
 N-VA is an access-control layer for trust where proof is private by design.
+
+## Roadmap
+Phase 1: private claims and proof generation. Phase 2: verifier dashboards and attestation flows. Phase 3: broader ecosystem integrations.
