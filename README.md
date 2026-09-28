@@ -25,3 +25,6 @@ Grant applications, compliance checks, age verification, and trust-based access 
 
 ## Trust model
 The verifier receives a boolean result and a proof attestation, not the underlying attributes.
+
+## Privacy promise
+The platform minimizes data collection, keeps sensitive information local, and reveals only what is required.
