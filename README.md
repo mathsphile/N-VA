@@ -52,3 +52,6 @@ Reduce unnecessary data disclosure while increasing verification confidence and 
 
 ## Feedback loop
 We continuously refine the product based on user and verifier feedback to improve trust, usability, and clarity.
+
+## Design principle
+Every product decision should protect privacy before convenience.
