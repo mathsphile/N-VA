@@ -31,3 +31,6 @@ The platform minimizes data collection, keeps sensitive information local, and r
 
 ## Product positioning
 N-VA sits between identity verification and zero-knowledge trust infrastructure, designed for real-world access decisions.
+
+## Audience
+Foundations, civic programs, educational institutions, and digital services that need verifiable trust without intrusive data collection.
