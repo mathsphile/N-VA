@@ -70,3 +70,6 @@ The project is ready to evolve through iterative feedback, stakeholder review, a
 
 ## Feedback milestone
 This release reflects the first major refinement cycle after incorporating design, product, and trust feedback.
+
+## Launch-ready framing
+N-VA is positioned as a privacy-preserving verification platform that turns trust into a manageable, user-friendly system.
