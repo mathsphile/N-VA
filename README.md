@@ -49,3 +49,6 @@ Create a trustworthy verification system that respects user privacy from day one
 
 ## Success metric
 Reduce unnecessary data disclosure while increasing verification confidence and user trust.
+
+## Feedback loop
+We continuously refine the product based on user and verifier feedback to improve trust, usability, and clarity.
