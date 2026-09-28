@@ -10,3 +10,6 @@ N-VA lets users prove claims such as age, region, student status, reputation, an
 
 ## Core principle
 Verify the claim, not the data.
+
+## Problem statement
+Existing verification flows require users to reveal too much information. That slows onboarding and undermines trust.
