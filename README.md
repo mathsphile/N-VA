@@ -34,3 +34,6 @@ N-VA sits between identity verification and zero-knowledge trust infrastructure,
 
 ## Audience
 Foundations, civic programs, educational institutions, and digital services that need verifiable trust without intrusive data collection.
+
+## Differentiator
+N-VA balances privacy, trust, and usability in one system instead of forcing users to trade data for access.
