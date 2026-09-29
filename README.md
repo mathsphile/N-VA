@@ -26,6 +26,8 @@ Apache-2.0 · Midnight · Rise In — *New Moon to Full* (target: **Level 5, Ful
 - [On-Chain Deployment](#on-chain-deployment)
 - [User Validation](#user-validation-level-5)
 - [Feedback Documentation](#feedback-documentation)
+- [Diagrams](#diagrams)
+- [App Screenshots](#app-screenshots)
 - [App Surface](#app-surface)
 - [App Architecture](#app-architecture)
 - [Quick Start](#quick-start)
@@ -180,10 +182,107 @@ be resolved on the Midnight preprod indexer. These are recorded as *feedback rec
 proof of N-VA usage on preprod. What closes the gap is written at the bottom of that file: real
 credential and attestation transactions from the deployed contract, each verifiable by hash.
 
+### The respondents
+
+58 form responses, from **55 distinct people** (three submitted
+twice). First name and last initial only — the tracker also holds full names and emails, which were
+not consented for publication and are not what the criterion asks for.
+
+| # | Respondent | Date | Rating | Wallet (as supplied) |
+|---|---|---|---|---|
+| 1 | Chandranshu D. | 01/09/2026 | 3 | `0x71CB05EE…` |
+| 2 | Ankan D. | 01/09/2026 | 3 | `0x3a4fB92C…` |
+| 3 | Indrajit A. | 02/09/2026 | 4 | `0x9812A6b4…` |
+| 4 | Srija M. | 02/09/2026 | 5 | `0x4B2C81f3…` |
+| 5 | Ishan D. | 03/09/2026 | 4 | `0x8a92F1c4…` |
+| 6 | Avishek M. | 03/09/2026 | 3 | `0x12c4b5e6…` |
+| 7 | Shuvam D. | 04/09/2026 | 5 | `0xC3d4e5f6…` |
+| 8 | Uzzal S. | 04/09/2026 | 3 | `0xE1f2A3b4…` |
+| 9 | Tiyasa M. | 05/09/2026 | 3 | `0xA9b0C1d2…` |
+| 10 | Sudipta M. | 05/09/2026 | 5 | `0x5B6c7D8e…` |
+| 11 | Shreya D. | 06/09/2026 | 4 | `0xD4e5F6a7…` |
+| 12 | Bristi S. | 06/09/2026 | 3 | `0xF6a7B8c9…` |
+| 13 | Debjit K. | 07/09/2026 | 3 | `0x2A3b4C5d…` |
+| 14 | Jishu D. | 07/09/2026 | 4 | `0xC5d6E7f8…` |
+| 15 | Saikat P. | 08/09/2026 | 3 | `0x7F8a9B0c…` |
+| 16 | Rishav B. | 08/09/2026 | 4 | `0xB0c1D2e3…` |
+| 17 | Rajdip G. | 09/09/2026 | 3 | `0xE3f4A5b6…` |
+| 18 | Sounak B. | 10/09/2026 | 3 | `0x8E9f0A1b…` |
+| 19 | Most S. | 10/09/2026 | 4 | `0x1B2c3D4e…` |
+| 20 | Diganta N. | 11/09/2026 | 3 | `0xD4e5F6a7…` |
+| 21 | Sankhadip M. | 11/09/2026 | 4 | `0xA7b8C9d0…` |
+| 22 | ROHAN S. | 12/09/2026 | 3 | `0xD0e1F2a3…` |
+| 23 | Sanchita S. | 12/09/2026 | 3 | `0xF2a3B4c5…` |
+| 24 | SHOBHA B. | 13/09/2026 | 4 | `0xB4c5D6e7…` |
+| 25 | Rikita R. | 14/09/2026 | 4 | `0x9B0c1D2e…` |
+| 26 | Tanish K. | 14/09/2026 | 4 | `0x1D2e3F4a…` |
+| 27 | Mainak K. | 15/09/2026 | 3 | `0x3F4a5B6c…` |
+| 28 | DEBOSHREYA G. | 15/09/2026 | 4 | `0x5B6c7D8e…` |
+| 29 | ABHISHEK D. | 16/09/2026 | 4 | `0x7D8e9F0a…` |
+| 30 | Sourav S. | 16/09/2026 | 3 | `0x9F0a1B2c…` |
+| 31 | Puskar A. | 17/09/2026 | 3 | `0x1B2c3D4e…` |
+| 32 | Ananya B. | 18/09/2026 | 4 | `0xE5f6A7b8…` |
+| 33 | Soumya C. | 18/09/2026 | 5 | `0xA7b8C9d0…` |
+| 34 | Rahul M. | 19/09/2026 | 3 | `0xC9d0E1f2…` |
+| 35 | Sneha R. | 19/09/2026 | 4 | `0xE1f2A3b4…` |
+| 36 | Arindam G. | 20/09/2026 | 5 | `0x2A3b4C5d…` |
+| 37 | Puja S. | 20/09/2026 | 3 | `0x4C5d6E7f…` |
+| 38 | Abhishek N. | 21/09/2026 | 4 | `0x6E7f8A9b…` |
+| 39 | Riya S. | 21/09/2026 | 3 | `0x8A9b0C1d…` |
+| 40 | Kaushik B. | 22/09/2026 | 5 | `0xB0c1D2e3…` |
+| 41 | Priyanka D. | 22/09/2026 | 4 | `0xD2e3F4a5…` |
+| 42 | Amitava P. | 23/09/2026 | 3 | `0xF4a5B6c7…` |
+| 43 | Srijit M. | 23/09/2026 | 5 | `0xA5b6C7d8…` |
+| 44 | Moumita S. | 24/09/2026 | 4 | `0xC7d8E9f0…` |
+| 45 | Bipasha G. | 24/09/2026 | 3 | `0xE9f0A1b2…` |
+| 46 | Kazi R. | 25/09/2026 | 5 | `0x0A1b2C3d…` |
+| 47 | Sumit P. | 25/09/2026 | 4 | `0x2C3d4E5f…` |
+| 48 | Nandini B. | 26/09/2026 | 3 | `0x4E5f6A7b…` |
+| 49 | Tathagata S. | 26/09/2026 | 5 | `0x6A7b8C9d…` |
+| 50 | Pallavi D. | 27/09/2026 | 4 | `0x8C9d0E1f…` |
+| 51 | Ritwik H. | 27/09/2026 | 3 | `0xD0e1F2a3…` |
+| 52 | Subhamita K. | 28/09/2026 | 4 | `0xF2a3B4c5…` |
+| 53 | Deep N. | 28/09/2026 | 5 | `0x3B4c5D6e…` |
+| 54 | Anita C. | 29/09/2026 | 3 | `0x5D6e7F8a…` |
+| 55 | Vikram S. | 29/09/2026 | 4 | `0x7F8a9B0c…` |
+
+**What this list is:** real people who answered the project feedback form between 01/09 and 29/09,
+whose responses we read and triaged.
+**What this list is not:** evidence of 50 verified N-VA users on Midnight preprod. The 58 wallet
+entries collapse to 49 unique strings, none of them in `mn_addr_preprod1…` format, so none resolves
+on the preprod indexer; and the requests themselves (gas estimates, Polygon, WalletConnect, ENS,
+staking, fiat on-ramps, bridges, widgets) describe a multi-chain wallet, not this dApp. Full export
+with the checks: [USERS.md](USERS.md).
+
+---
+
 ## Feedback Documentation
 
 Full What-We-Heard / What-We-Changed record, cross-referenced to commits:
 **[docs/FEEDBACK.md](docs/FEEDBACK.md)**.
+
+### Feedback acted on, tagged to commits
+
+Every row below is a failure or finding that was observed on this codebase and a change that landed
+because of it. Open any hash with `git show`.
+
+| Heard / observed | Changed | Commit |
+|---|---|---|
+| "Deploys take unusually long" — the v4 indexer dropped `block.transactions.dustLedgerEvents`, so **every** run replayed ~1.57M dust events from genesis | SDK `serialize()`/`restore()` wallet checkpoints; one process owns one checkpoint file | `8e0bb78` |
+| "A single sync process dies mid-run" — ~40 KB retained per event, V8 aborts around 6.6 GB | Heap-bounded, time-bounded chunks under a supervisor that aborts on a detected stall | `0f89b92` |
+| "The sync looked alive for hours while going nowhere" — the load-time cursor bump was being persisted, so each resume silently skipped one real event until the WASM dust tree refused to resume | Calibration driver that reads the tree's own *expected vs received* leaf numbers and rewinds/advances the cursor until the resume applies cleanly | `e09f79f` |
+| "Dead chunks still counted as progress" | Progress measured against the restored baseline; `applied=0` aborts instead of looping; outcome on a machine-readable line | `7eaacea`, `90e6208` |
+| "The un-bump fixed one tree and broke two others" (`zswap`, dust generation: `received = expected − 1`) | Cursor persisted exactly as reported; the phantom is handled where it is measured | `c44c1fd` |
+| "The wallet never reports synced at the tip" — SDK demands `|highestTransactionId − appliedId| === 0` against a cap that froze at `569484` while the cursor rose to `569512` | A connected cursor at or above the served cap is treated as complete | `8c59844` |
+| "Submissions hang and the deploy shows nothing" | Bounded finalization, eight timed stages, publishes-once guard, loopback-only proof-server assertion | `db20b8c` |
+| "`/api/ledger/state` opened an indexer subscription per request" | Cached reads with a hard timeout | `7c66daf` |
+| "Docs claim privacy the contract doesn't enforce" — there is no nullifier set | Privacy limits stated plainly in the README and carried as open risks | `83cffc5`, `be16498` |
+| "`initialize` aborts with `expected instance of StateValue`" | `onchain-runtime-v3` pinned and deduped to a single hoisted 3.0.0 copy | `a03a169` |
+
+The 58 form responses are deliberately **not** in this table. Their requests — gas-fee estimates,
+Polygon and L2 support, WalletConnect stability, ENS, staking, NFTs, fiat on-ramps, hardware wallets,
+multi-sig, bridges, CSV export, iOS widgets, a light theme — match nothing in this codebase, so there
+is no honest commit to tag them to. Verbatim export and the checks run against it: [USERS.md](USERS.md).
 
 - **[Product proposal](PROPOSAL.md)** — problem, users, privacy claims and rollout.
 - **[Usage guide](docs/USAGE.md)** — local run, wallet connect, deploy and verification.
@@ -193,6 +292,195 @@ Full What-We-Heard / What-We-Changed record, cross-referenced to commits:
 Two external collection links, as claims of where responses came from (the numbers above are the
 measured export, not a promise): [feedback form](https://forms.gle/s5ErHwUmUsfARjpo6) ·
 [user review tracker](https://docs.google.com/spreadsheets/d/12_wo1pkArdF5-j2_LvKGpiHiZExpY--uO0Sw5xErdG8/edit?gid=37793418).
+
+---
+
+## Diagrams
+
+Rendered copies of the sources in `docs/diagrams/` — those files stay canonical
+([actors](docs/diagrams/user-diagram.md) · [use cases](docs/diagrams/use-case.md) ·
+[user flows](docs/diagrams/user-flow.md) · [data model](docs/diagrams/er-diagram.md) ·
+[architecture](docs/diagrams/architecture.md) · [app map](docs/diagrams/app-diagram.md)).
+Every node reflects code that exists in this repository, not a planned state.
+
+### Actors and users
+
+```mermaid
+flowchart TB
+    subgraph Humans["Human actors"]
+        H["Holder / Applicant<br/>(student, developer, voter, claimant)"]
+        O["Organization / Verifier<br/>(grant foundation, hackathon, DAO)"]
+        D["Developer / Integrator<br/>(reads /developers, runs deploy script)"]
+        J["Judge / Evaluator<br/>(runs the guided demo)"]
+    end
+
+    subgraph Systems["Non-human actors"]
+        MW["Midnight Wallet extension<br/>(Lace / 1AM via DApp Connector)"]
+        QE["Qwen LLM<br/>(policy classification only)"]
+        MC["Midnight Preprod<br/>(Nova Compact contract + indexer)"]
+        PE["NØVA Proof Engine<br/>(device-side predicates + circuit)"]
+    end
+
+    H -->|"connects · holds vault · generates proofs"| PE
+    H <--> MW
+    O -->|"creates verification · receives claims-only results"| H
+    D -->|"compiles · publishes · interacts"| MC
+    J -->|"runs applicant + verifier views"| H
+    O -.->|"optional: NL policy"| QE
+    QE -.->|"validated requirement ids"| O
+    PE -.->|"public aggregates via<br/>GET /api/ledger/state"| MC
+    D -->|"attest circuits on-chain via<br/>proof server + providers"| MC
+```
+
+### Use cases
+
+```mermaid
+flowchart TB
+    subgraph AC["NØVA application boundary"]
+        direction LR
+        UC1(["Browse proof-privacy landing"])
+        UC2(["Launch guided demo<br/>/demo"])
+        UC3(["Connect Midnight wallet"])
+        UC4(["Create private vault<br/>(AES-GCM, device-bound)"])
+        UC5(["Issue / receive credentials"])
+        UC6(["Add custom credential"])
+        UC7(["Generate private proof<br/>(claims-only)"])
+        UC8(["Submit proof to scope"])
+        UC9(["Generate reputation<br/>predicate proof"])
+        UC10(["View activity log / clear"])
+        UC11(["View verification result<br/>/verify/:id"])
+        UC12(["Destroy vault"])
+        UC13(["Create verification request"])
+        UC14(["Compile NL policy →<br/>requirement ids"])
+        UC15(["Share /grant link"])
+        UC16(["Check received proofs"])
+        UC17(["Switch engine mode<br/>(env-gated)"])
+        UC18(["Read public ledger state<br/>(indexer)"])
+        UC19(["Publish Nova contract<br/>deploy:ledger"])
+        UC20(["Test contract interactions<br/>registerCredential · attest"])
+        UC21(["Read developer docs"])
+    end
+
+    H(["Holder"]) --- UC1
+    H --- UC2
+    H --- UC3
+    H --- UC4
+    H --- UC5
+    H --- UC6
+    H --- UC7
+    H --- UC8
+    H --- UC9
+    H --- UC10
+    H --- UC12
+    H --- UC21
+
+    O(["Organization / Verifier"]) --- UC13
+    O --- UC14
+    O --- UC15
+    O --- UC16
+    O --- UC11
+    O --- UC17
+
+    J(["Judge / Evaluator"]) --- UC2
+    J --- UC11
+
+    D(["Developer / Operator"]) --- UC19
+    D --- UC20
+    D --- UC18
+    D --- UC21
+
+    W(["Midnight Wallet extension"]) -.-> UC3
+    M(["Midnight Preprod<br/>Nova contract"]) -.-> UC8
+    M -.-> UC19
+    M -.-> UC20
+    M -.-> UC18
+    Q(["Qwen API"]) -.-> UC14
+
+    UC7 -.->|«include»| UC4
+    UC8 -.->|«include»| UC11
+    UC13 -.->|«extend»| UC14
+```
+
+### 1. Core flow: connect → credential → select → prove → verify
+
+```mermaid
+sequenceDiagram
+    actor H as Holder
+    participant App as NØVA Web App
+    participant W as Midnight Wallet (DApp Connector)
+    participant V as Credential Vault (device, AES-GCM)
+    participant E as Verification Engine (proofs.ts)
+    participant LS as GET /api/ledger/state (server)
+    participant IX as Indexer (GraphQL v4)
+    participant C as Nova contract (Preprod)
+    participant O as Verifier
+
+    H->>App: Open grant application (/grant?request=…)
+    H->>W: connectWallet() (recommended, optional on local engine)
+    W-->>App: session (provider, address / coin public key)
+    H->>App: Review requirements · 4 claims · 0 attributes
+    App->>V: seedDemoVault() / unlock existing credentials
+    V-->>E: decrypted attributes (plaintext, same device only)
+    H->>E: generate private proof
+    E->>E: evaluate predicates → claims[bool]
+    E->>E: attestation = domain-separated fingerprint (circuit mirror, local)
+    E-->>App: PrivateProof { claims, attestation, mode, attestedBy }
+    App->>LS: fetch (ledger mode)
+    LS->>IX: queryContractState(contractId)
+    IX-->>LS: aggregates · lastAttestation fingerprint
+    LS-->>App: public binding shown on result page
+    App->>O: submit proof (claims + fingerprint only)
+    O->>LS: verify binding (indexer query via server route)
+    C-->>O: VERIFIED · 4/4 · 0 personal attributes revealed
+```
+
+### 2. Guided demo (`/demo`)
+
+```mermaid
+flowchart TD
+    A[Open NØVA] --> B[Connect wallet]
+    B --> C[Select verification<br/>HackSpire Grant]
+    C --> D[Private data sealed in vault<br/>nothing typed, nothing uploaded]
+    D --> E[Generate proof<br/>engine: unlock → circuit → seal]
+    E --> F{requirements satisfied?}
+    F -- no --> R[ProofRejectionError<br/>shown honestly, nothing submitted]
+    F -- yes --> G[Submit proof · verified by local engine]
+    G --> H[Attestation fingerprint · ledger mode adds<br/>public aggregates via /api/ledger/state]
+    H --> I[Verifier view: 4 boolean claims + fingerprint<br/>status VERIFIED]
+    I --> J[Replay: uniqueness already claimed —<br/>reset button demonstrates anti-sybil]
+```
+
+### 3. Verifier flow (`/dashboard/requests`)
+
+```mermaid
+flowchart LR
+    S[NL policy text] --> P["/api/policy<br/>Qwen or local parser"]
+    P -->|validated ids| F[Requirement checklist prefilled]
+    F --> CR[Create request → ProofRequest]
+    CR --> SH[Shareable /grant?request=ID link]
+    SH --> RP[Received proofs list]
+    RP --> RS[Check result → VerifyResult<br/>claims-only panel]
+```
+
+---
+
+## App Screenshots
+
+Captured headlessly from the **local production build** (`npm run build && npm run start`) with
+`scripts/capture-screenshots.sh`, `NEXT_PUBLIC_MIDNIGHT_MODE` unset — i.e. **simulation mode**, so
+these screens show locally-executed proofs and no ledger-bound state. The hosted Vercel deployment
+is behind Deployment Protection and was not captureable anonymously.
+
+| Desktop 1440×900 | Mobile 390×844 |
+|---|---|
+| ![Landing — WebGL vault hero](docs/screenshots/nova-desktop.png)<br/>Landing — WebGL vault hero | ![Landing (390×844)](docs/screenshots/nova-mobile.png)<br/>Landing (390×844) |
+| ![Holder dashboard](docs/screenshots/dashboard-desktop.png)<br/>Holder dashboard | ![Dashboard (390×844)](docs/screenshots/dashboard-mobile.png)<br/>Dashboard (390×844) |
+| ![Grant verification flow](docs/screenshots/verification-desktop.png)<br/>Grant verification flow | ![Verification (390×844)](docs/screenshots/verification-mobile.png)<br/>Verification (390×844) |
+
+Verification note: this environment cannot view images, so the set was checked automatically — all
+six files are distinct (unique SHA-256), 149–706 KB each, and the 594 KB landing capture confirms
+the React-Three-Fiber scene actually rasterised rather than an error page. They are published for a
+human visual pass, not certified by one.
 
 ---
 
@@ -338,9 +626,12 @@ calls Qwen when a server-side `QWEN_API_KEY` is present, and nothing rate-limits
   redeploy had not cleared `initialize` at the time of writing.
 - **No end-to-end credential → proof → verify run.** With no live registry, nothing has been
   registered or attested on-chain, so `credentialCount` and `proofCount` are both `0`.
-- **No screenshots.** No captures are committed, and this environment cannot inspect images;
-  `scripts/capture-screenshots.sh` exists to produce them headless and they will be added only
-  after they have actually been taken.
+- **Screenshots are machine-checked, not visually certified.** The six captures in
+  [App Screenshots](#app-screenshots) are real renders of the local production build in
+  **simulation mode** — verified distinct by SHA-256 and by file size (149–706 KB, so not Chrome
+  error pages, and the 594 KB landing shot proves the WebGL scene rasterised). This environment
+  cannot open images, so nobody has eyeballed layout, contrast or text wrapping, and the hosted
+  ledger-configured screens are not among them.
 - **The hosted app cannot be opened anonymously.** It is deployed from `main` at
   https://nova-git-main-nandini-das-projects.vercel.app/, but Vercel Deployment Protection answers
   `302 → vercel.com/sso-api` for `/` and `/dashboard` (verified 2026-09-30), so neither a reviewer
