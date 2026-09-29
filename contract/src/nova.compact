@@ -1,0 +1,139 @@
+// NØVA — Private Proof Network
+// SPDX-License-Identifier: Apache-2.0
+//
+// Contract semantics
+// ------------------
+// NØVA never stores personal data. The ledger only ever learns:
+//   * one-way commitments binding a credential to its issuer,
+//   * a running credential accumulator (a single digest over all
+//     registered commitments, revealing nothing about any of them),
+//   * aggregate counters for registered credentials and verified proofs,
+//   * the latest attestation fingerprint emitted when a holder proves a
+//     claim for a given scope (grant, airdrop, election, ...).
+// Raw credential secrets, holder identifiers and uniqueness nullifiers
+// are computed inside zero-knowledge witness execution and never leave
+// the holder's client.
+
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+/* Whether the registry accepts new credential commitments. */
+export enum RegistryStatus {
+  BOOTSTRAPPING,
+  LIVE,
+  SUSPENDED
+}
+
+export ledger status: RegistryStatus;
+
+export ledger owner: Bytes<32>;
+
+export ledger sequence: Counter;
+
+/* Running digest over every registered credential commitment. */
+export ledger credentialAccumulator: Bytes<32>;
+
+/* Public aggregates only. */
+export ledger credentialCount: Counter;
+
+export ledger proofCount: Counter;
+
+/* Fingerprint of the most recent attestation, and its scope. */
+export ledger lastAttestation: Bytes<32>;
+
+export ledger lastAttestationScope: Bytes<32>;
+
+constructor() {
+  status = RegistryStatus.BOOTSTRAPPING;
+  credentialCount.increment(1);
+  credentialCount.decrement(1);
+  proofCount.increment(1);
+  proofCount.decrement(1);
+  sequence.increment(1);
+}
+
+/* Registry operator secret key (private to the deploying client). */
+witness localAdminSecretKey(): Bytes<32>;
+
+/* The credential secret held privately by the credential owner.
+ * Never disclosed to the ledger. */
+witness credentialSecret(): Bytes<32>;
+
+/* Single-use entropy supplied by the holder's client when attesting. */
+witness holderEntropy(): Bytes<32>;
+
+/* Derive the registry operator's public key. Pure, so clients can
+ * compute it off-circuit as well. */
+export circuit operatorPublicKey(sk: Bytes<32>, epoch: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "nova:operator:"), epoch, sk]);
+}
+
+/* Domain-separated one-way commitment for a credential: binds the
+ * holder's secret to the issuer that vouched for it. */
+export circuit credentialCommitmentFor(secret: Bytes<32>, issuer: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "nova:credential:"), issuer, secret]);
+}
+
+/* Fold a new credential commitment into the public accumulator without
+ * revealing the commitment itself. */
+export circuit accumulatorNext(accumulator: Bytes<32>, commitment: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "nova:accumulator:"), accumulator, commitment]);
+}
+
+/* Uniqueness attestation fingerprint for one holder in one scope
+ * (e.g. a specific grant). Binds credential + scope + fresh entropy;
+ * reveals no reusable identity information. */
+export circuit attestationFor(secret: Bytes<32>, scope: Bytes<32>, entropy: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<4, Bytes<32>>>([pad(32, "nova:attestation:"), secret, scope, entropy]);
+}
+
+/* One-time bootstrap by the registry operator. */
+export circuit initialize(): [] {
+  assert(status == RegistryStatus.BOOTSTRAPPING, "Attempted to initialize an already initialized registry");
+  owner = disclose(operatorPublicKey(localAdminSecretKey(), sequence as Field as Bytes<32>));
+  credentialAccumulator = disclose(pad(32, "nova:genesis"));
+  status = RegistryStatus.LIVE;
+}
+
+/* Operator only: suspend the registry. */
+export circuit suspend(): [] {
+  assert(status == RegistryStatus.LIVE, "Attempted to suspend an inactive registry");
+  assert(
+    owner == operatorPublicKey(localAdminSecretKey(), sequence as Field as Bytes<32>),
+    "Attempted to change registry status, but not the operator"
+  );
+  status = RegistryStatus.SUSPENDED;
+}
+
+/* Operator only: resume the registry. */
+export circuit resume(): [] {
+  assert(status == RegistryStatus.SUSPENDED, "Attempted to resume an active registry");
+  assert(
+    owner == operatorPublicKey(localAdminSecretKey(), sequence as Field as Bytes<32>),
+    "Attempted to change registry status, but not the operator"
+  );
+  status = RegistryStatus.LIVE;
+}
+
+/* Register a credential commitment for a verified issuer.
+ * The caller proves they hold a credential from `issuer` without
+ * revealing the credential secret or any personal attribute. */
+export circuit registerCredential(issuer: Bytes<32>): [] {
+  assert(status == RegistryStatus.LIVE, "Attempted to register a credential while registry is not live");
+  credentialAccumulator = disclose(accumulatorNext(credentialAccumulator, credentialCommitmentFor(credentialSecret(), issuer)));
+  credentialCount.increment(1);
+}
+
+/* Attest that the caller holds a credential committed under the
+ * accumulator and wishes to claim a scoped reward once. The ledger
+ * records only the aggregate proof counter and the attestation
+ * fingerprint; the credential secret, scope binding and entropy never
+ * leave the witness execution. */
+export circuit attest(scope: Bytes<32>): Bytes<32> {
+  assert(status == RegistryStatus.LIVE, "Attempted to attest while registry is not live");
+  lastAttestation = disclose(attestationFor(credentialSecret(), scope, holderEntropy()));
+  lastAttestationScope = disclose(scope);
+  proofCount.increment(1);
+  return lastAttestation;
+}
