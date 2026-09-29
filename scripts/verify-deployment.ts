@@ -100,7 +100,9 @@ async function main(): Promise<void> {
   // 3 — explorer links
   console.log('explorer (contract)  :', `${env.explorer}/address/${address}`);
   if (record?.deploymentTx) {
-    console.log('explorer (deploy tx) :', `${env.explorer}/transaction/${record.deploymentTx}`);
+    // Only /address/<addr> resolves on the Midnight explorers — /transaction/, /tx/ and /block/
+    // all return 404 — so the tx hash is printed for lookup against the contract page, not linked.
+    console.log('deployment tx        :', record.deploymentTx, '(see the contract page above)');
   }
 }
 
