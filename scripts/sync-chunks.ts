@@ -22,7 +22,7 @@ import * as Rx from 'rxjs';
 import { firstValueFrom } from 'rxjs';
 import { WebSocket } from 'ws';
 import type { EnvironmentConfiguration } from '@midnight-ntwrk/testkit-js';
-import { NovaWalletProvider, checkpointDustIndex, isWalletSynced, writeCheckpointEnvelope } from './lib/wallet-provider.js';
+import { NovaWalletProvider, checkpointDustIndex, isWalletSynced, wasRestoredFromCheckpoint, writeCheckpointEnvelope } from './lib/wallet-provider.js';
 import { loadEnvFiles } from './lib/env.js';
 
 // @ts-expect-error — WebSocket polyfill required by the indexer client on Node
@@ -130,23 +130,32 @@ async function main(): Promise<void> {
     }
   }
 
-  let savedIndex = lastDustIndex;
+  const writingCheckpoint = process.env.CHECKPOINT_WRITE !== '0';
+  let cursor = lastDustIndex;
   try {
-    if (lastState) {
+    if (lastState && writingCheckpoint) {
       writeCheckpointEnvelope(logger, lastState, network, seed);
-      savedIndex = checkpointDustIndex(network, seed);
+      cursor = checkpointDustIndex(network, seed);
     }
   } catch (error) {
     logger.error(`Final checkpoint write failed: ${error instanceof Error ? error.message : 'unknown'}`);
   }
   await provider.stop().catch(() => {});
 
-  const gained = savedIndex > startIndex ? savedIndex - startIndex : 0n;
+  // Report progress in the checkpoint's own convention — "the last event the
+  // state actually applied". A restored process counts one higher (the
+  // load-time bump is ours, not an applied event) and, in probe mode, nothing
+  // was persisted to correct it. Counting that phantom as progress is exactly
+  // what let ~26 dead chunks look alive to the supervisor on preprod.
+  if (!writingCheckpoint && wasRestoredFromCheckpoint()) cursor -= 1n;
+  const gained = cursor > startIndex ? cursor - startIndex : 0n;
+
   if (synced) {
-    logger.info(`✅ Wallet fully synced (dust appliedIndex ${savedIndex}). Ready to deploy.`);
+    logger.info(`✅ Wallet fully synced (dust appliedIndex ${cursor}). Ready to deploy.`);
     process.exit(0);
   }
-  logger.info(`Chunk finished (${reason}): dust advanced ${startIndex} → ${savedIndex} (+${gained}).`);
+  logger.info(`Chunk finished (${reason}): dust advanced ${startIndex} → ${cursor} (+${gained}).`);
+  logger.info(`chunk result: reason=${reason} applied=${gained} cursor=${cursor}`);
   if (gained < minProgressEvents && startIndex !== 0n) {
     logger.error('Sync stalled: this chunk gained fewer than the minimum progress events. Not looping — inspect indexer/chain state.');
     process.exit(1);

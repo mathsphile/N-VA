@@ -288,6 +288,9 @@ function watchAndSaveCheckpoint(
  */
 let persistedCursorIsBumped = false;
 
+/** True when this process restored a checkpoint, i.e. its progress cursor is load-bumped. */
+export const wasRestoredFromCheckpoint = (): boolean => persistedCursorIsBumped;
+
 function readCursor(serialized: string): bigint | undefined {
   const data = JSON.parse(serialized) as Record<string, unknown>;
   const v = data.offset ?? data.appliedId;
