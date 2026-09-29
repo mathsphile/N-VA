@@ -67,7 +67,7 @@ function runProbe(): Probe {
 }
 
 const DUST_MISMATCH = /expected to insert index (\d+), but received (\d+)/;
-const ADVANCED = /dust advanced (\d+) → (\d+)/;
+const RESULT = /chunk result: reason=\S+ applied=(\d+) cursor=\d+/;
 const otherApplyError = (out: string): boolean =>
   /Error while applying sync update/.test(out) && !DUST_MISMATCH.test(out);
 
@@ -113,10 +113,10 @@ for (let attempt = 1; attempt <= maxTries; attempt += 1) {
     process.exit(1);
   }
 
-  const moved = ADVANCED.exec(out);
-  const [, fromText = '0', toText = '0'] = moved ?? [];
-  if (moved && BigInt(toText) > BigInt(fromText)) {
-    logger.info(`resume applied events (${fromText} → ${toText}), no tree abort — checkpoint healed.`);
+  const result = RESULT.exec(out);
+  const [, appliedText = '0'] = result ?? [];
+  if (result && BigInt(appliedText) > 0n) {
+    logger.info(`resume applied ${appliedText} events with no tree abort — checkpoint healed.`);
     process.exit(0);
   }
 
