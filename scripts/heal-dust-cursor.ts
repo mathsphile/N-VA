@@ -1,30 +1,37 @@
 /*
- * NØVA — dust checkpoint calibration.
+ * NØVA — checkpoint cursor calibration.
  *
- * A resumed dust wallet either aborts with
- *   "values inserted non-linearly into dust commitment tree; expected to
- *    insert index E, but received R"
- * or it doesn't. That abort message is an exact oracle: the serialized tree
- * is at leaf E while the cursor we restored points at the event that would
- * insert leaf R. In this region of the ledger dust events map 1:1 to tree
- * inserts, so rewinding the stored cursor by (R - E) lands the resume on the
- * event the tree is actually waiting for.
+ * A resumed wallet either aborts with
+ *   "values inserted non-linearly into <tree>; expected to insert index E,
+ *    but received R"
+ * or it doesn't. That abort is an exact oracle: the serialized tree sits at
+ * leaf E while the cursor we restored feeds the event that would insert leaf
+ * R, and in these regions of the ledger events map 1:1 to tree inserts. So
+ * moving the stored cursor by (R - E) lands the resume on the event the tree
+ * is actually waiting for — negative delta rewinds (events were skipped),
+ * positive delta advances (an event was re-fed).
  *
- * The driver therefore runs read-only probe chunks (CHECKPOINT_WRITE=0 so the
- * checkpoint never moves underneath us), reads the mismatch out of the probe's
- * own output, rewrites the cursor, and repeats until the probe applies events
- * cleanly. Preprod needed this after ~26 phantom cursor advances desynced the
- * tree; without it every chunk died on the first batch.
+ * Three trees report this, and they belong to two different sub-wallets, so
+ * both are calibrated here:
+ *   dust commitment tree / dust generation tree  -> dust wallet cursor
+ *   zswap commitment tree                        -> shielded wallet cursor
+ *
+ * The driver runs read-only probe chunks (CHECKPOINT_WRITE=0, so the
+ * checkpoint never moves underneath it), reads the mismatch out of the probe's
+ * own output, rewrites the cursor, and repeats until a probe applies events
+ * with no abort. Preprod needed this twice: ~26 skipped dust events after
+ * phantom cursor advances, then a shielded cursor one *behind* its tree after
+ * a write-side un-bump window.
  *
  *   npx tsx scripts/heal-dust-cursor.ts [preview|preprod] [max-tries]
  *
- * Exit codes: 0 = resume is clean (safe to run the supervisor), 1 = cannot
- * attribute the failure, 2 = oscillated/stalled without converging.
+ * Exit codes: 0 = resume is clean (safe to deploy), 1 = failure cannot be
+ * attributed to a cursor, 2 = oscillated or stalled without converging.
  */
 
 import { spawnSync } from 'node:child_process';
 import { pino } from 'pino';
-import { checkpointDustIndex, setCheckpointOffset } from './lib/wallet-provider.js';
+import { checkpointCursor, setCheckpointOffset } from './lib/wallet-provider.js';
 import { loadEnvFiles } from './lib/env.js';
 
 const logger = pino({ level: 'info', transport: { target: 'pino-pretty', options: { colorize: true } } });
@@ -45,12 +52,7 @@ function requireSeed(): string {
 
 const seed = requireSeed();
 
-interface Probe {
-  out: string;
-  status: number | null;
-}
-
-function runProbe(): Probe {
+function runProbe(): { out: string; status: number | null } {
   const result = spawnSync('npx', ['tsx', 'scripts/sync-chunks.ts', network], {
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
@@ -66,17 +68,36 @@ function runProbe(): Probe {
   return { out: `${result.stdout ?? ''}${result.stderr ?? ''}`, status: result.status };
 }
 
-const DUST_MISMATCH = /expected to insert index (\d+), but received (\d+)/;
+const streamFor = (tree: string): 'dust' | 'shielded' => (tree === 'zswap commitment tree' ? 'shielded' : 'dust');
+
+function mismatches(out: string): Array<{ stream: 'dust' | 'shielded'; tree: string; expected: bigint; received: bigint }> {
+  const found: Array<{ stream: 'dust' | 'shielded'; tree: string; expected: bigint; received: bigint }> = [];
+  for (const tree of ['dust commitment tree', 'dust generation tree', 'zswap commitment tree']) {
+    // Sticky per-tree scan: the same tree can be reported several times in one
+    // chunk as the SDK retries the batch it failed on.
+    const re = new RegExp(
+      `values inserted non-linearly into ${tree}; expected to insert index (\\d+), but received (\\d+)`,
+    );
+    const m = re.exec(out);
+    if (m) {
+      const [, expectedText = '0', receivedText = '0'] = m;
+      found.push({ stream: streamFor(tree), tree, expected: BigInt(expectedText), received: BigInt(receivedText) });
+    }
+  }
+  return found;
+}
+
 const RESULT = /chunk result: reason=\S+ applied=(\d+) cursor=\d+/;
-const otherApplyError = (out: string): boolean =>
-  /Error while applying sync update/.test(out) && !DUST_MISMATCH.test(out);
 
 const seen = new Set<string>();
 let stagnant = 0;
 
 for (let attempt = 1; attempt <= maxTries; attempt += 1) {
-  const cursor = checkpointDustIndex(network, seed);
-  logger.info(`try ${attempt}/${maxTries}: probing resume from dust cursor ${cursor} (${Math.round(probeMs / 1000)}s, read-only)…`);
+  const dustCursor = checkpointCursor(network, seed, 'dust');
+  const shieldedCursor = checkpointCursor(network, seed, 'shielded');
+  logger.info(
+    `try ${attempt}/${maxTries}: probing resume from dust ${dustCursor} / shielded ${shieldedCursor} (${Math.round(probeMs / 1000)}s, read-only)…`,
+  );
   const { out, status } = runProbe();
 
   if (/Wallet fully synced/.test(out)) {
@@ -84,31 +105,31 @@ for (let attempt = 1; attempt <= maxTries; attempt += 1) {
     process.exit(0);
   }
 
-  const mismatch = DUST_MISMATCH.exec(out);
-  if (mismatch) {
-    const [, expectedText = '0', receivedText = '0'] = mismatch;
-    const expected = BigInt(expectedText);
-    const received = BigInt(receivedText);
-    const next = cursor - (received - expected);
-    if (next < 0n) {
-      logger.error(`calibration would rewind past genesis (cursor ${cursor}, delta ${received - expected}) — checkpoint state is unrecoverable.`);
-      process.exit(1);
+  const found = mismatches(out);
+  if (found.length > 0) {
+    for (const f of found) {
+      const cursor = f.stream === 'dust' ? dustCursor : shieldedCursor;
+      const next = cursor - (f.received - f.expected);
+      if (next < 0n) {
+        logger.error(`calibration would rewind ${f.stream} past genesis (cursor ${cursor}, delta ${f.received - f.expected}) — checkpoint state is unrecoverable.`);
+        process.exit(1);
+      }
+      const key = `${f.stream}:${cursor}->${next}`;
+      if (seen.has(key)) {
+        logger.error(`calibration oscillated at ${key} — stopping rather than looping.`);
+        process.exit(2);
+      }
+      seen.add(key);
+      logger.info(
+        `${f.tree}: tree at leaf ${f.expected}, cursor feeds leaf ${f.received} → ${f.stream} cursor ${cursor} → ${next}.`,
+      );
+      setCheckpointOffset(network, seed, f.stream, next);
     }
-    const key = `${cursor}->${next}`;
-    if (seen.has(key)) {
-      logger.error(`calibration oscillated at ${key} — stopping rather than looping.`);
-      process.exit(2);
-    }
-    seen.add(key);
-    logger.info(
-      `tree at leaf ${expected}, cursor feeds leaf ${received}: rewinding dust cursor ${cursor} → ${next}.`,
-    );
-    setCheckpointOffset(network, seed, 'dust', next);
     continue;
   }
 
-  if (otherApplyError(out)) {
-    logger.error('a non-dust stream failed to apply; this driver only calibrates dust. Capture the cause before resuming:');
+  if (/Error while applying sync update/.test(out)) {
+    logger.error('an apply failure that no cursor delta can explain. Captured cause:');
     logger.error(out.split('\n').filter((l) => /Error|error|cause/.test(l)).slice(0, 12).join('\n'));
     process.exit(1);
   }
@@ -121,9 +142,9 @@ for (let attempt = 1; attempt <= maxTries; attempt += 1) {
   }
 
   stagnant += 1;
-  logger.warn(`probe ${attempt}: no events applied and no mismatch (status ${status}) — dust stream idle? [${stagnant}/2]`);
+  logger.warn(`probe ${attempt}: no events applied and no mismatch to act on (status ${status}) — indexer stream idle? [${stagnant}/2]`);
   if (stagnant >= 2) {
-    logger.error('stalled twice with no mismatch to act on — the block is not the cursor. Check indexer WS connectivity before looping.');
+    logger.error('stalled twice with nothing to recalibrate — the blocker is connectivity, not the cursor.');
     process.exit(2);
   }
 }

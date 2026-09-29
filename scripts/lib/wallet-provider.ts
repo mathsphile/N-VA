@@ -204,6 +204,17 @@ export function checkpointDustIndex(network: string, seed: string): bigint {
   }
 }
 
+/** Stored cursor for any replayable stream, read from the blob itself. */
+export function checkpointCursor(network: string, seed: string, stream: 'dust' | 'shielded'): bigint {
+  try {
+    const cp = loadCheckpoint(network, seed);
+    if (!cp) return 0n;
+    return BigInt(String(readCursor(cp[stream]) ?? 0n));
+  } catch {
+    return 0n;
+  }
+}
+
 function loadCheckpoint(network: string, seed: string): CheckpointEnvelope | undefined {
   const file = checkpointFile(network, seed);
   try {
