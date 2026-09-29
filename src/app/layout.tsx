@@ -1,17 +1,24 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import { Footer } from '@/components/site/Footer';
 import { Navbar } from '@/components/site/Navbar';
 import { Providers } from '@/components/site/Providers';
 import { site } from '@/lib/site';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-inter' });
-const mono = JetBrains_Mono({
-  subsets: ['latin'],
+// Self-hosted (see fonts/README.md): `next/font/google` fetched these at build
+// time and, when that fetch came back odd, the loader threw
+// `Cannot read properties of null` inside @next/font/dist/google/loader.js and
+// failed `next build`. A build must not depend on a third party being reachable.
+const inter = localFont({
+  src: [{ path: './fonts/Inter-latin.woff2', weight: '100 900', style: 'normal' }],
+  display: 'swap',
+  variable: '--font-inter',
+});
+const mono = localFont({
+  src: [{ path: './fonts/JetBrainsMono-latin.woff2', weight: '400 700', style: 'normal' }],
   display: 'swap',
   variable: '--font-mono-jb',
-  weight: ['400', '500'],
 });
 
 export const metadata: Metadata = {
