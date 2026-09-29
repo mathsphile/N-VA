@@ -1,0 +1,91 @@
+name: CI
+
+# The whole gate is budgeted at 5 minutes: the job fails if it exceeds it, so
+# "tests pass in under 5 minutes" is enforced by the pipeline rather than
+# claimed in a README. Locally lint + typecheck + test + build measured 35.0s.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: lint · typecheck · test · build · deployed state
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      # Public preprod contract — verified on-chain, no secrets required.
+      CONTRACT_ADDRESS: 02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install (clean, from the lockfile)
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      # `typecheck` runs the contract workspace's precheck, which compiles with
+      # the Compact toolchain only when it is on PATH and otherwise uses the
+      # artifacts committed under contract/src/managed/nova/. CI has no toolchain.
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Assert the deployed registry is LIVE (public indexer read)
+        run: |
+          npx tsx scripts/verify-deployment.ts preprod "$CONTRACT_ADDRESS" | tee contract-state.log
+          grep -Eq 'status[[:space:]]+: LIVE' contract-state.log
+          echo "registry LIVE on preprod"
+
+  deploy:
+    name: Vercel production deploy (opt-in)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      # Vercel's own Git integration already deploys `main`; this job exists so
+      # a deploy can also be driven from CI. It reports skipped rather than
+      # failing when the secrets have not been added.
+      - name: Check for Vercel credentials
+        id: creds
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ -n "$VERCEL_TOKEN" ] && [ -n "$VERCEL_PROJECT_ID" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Vercel deploy skipped — VERCEL_TOKEN / VERCEL_PROJECT_ID not configured; Git-integrated deploys still run."
+          fi
+
+      - name: Deploy prebuilt output to production
+        if: steps.creds.outputs.ready == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npm ci
+          npx --yes vercel@latest build --prod
+          npx --yes vercel@latest deploy --prod --prebuilt --token "$VERCEL_TOKEN"
