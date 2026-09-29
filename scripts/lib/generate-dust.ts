@@ -18,6 +18,7 @@ import { createKeystore, type UnshieldedWalletState } from '@midnight-ntwrk/wall
 import { type WalletFacade } from '@midnight-ntwrk/wallet-sdk-facade';
 import type { Logger } from 'pino';
 import * as rx from 'rxjs';
+import { isWalletSynced } from './wallet-provider.js';
 
 type Coin = UnshieldedWalletState['availableCoins'][number];
 
@@ -101,28 +102,30 @@ export async function ensureDustReady(
     return st.dust.balance(new Date());
   };
 
-  // Registration metadata is only trustworthy once the wallet has fully
-  // synced (the testkit/fallback path replays history; a first emission can
-  // show stale coin flags — e.g. a fresh faucet UTXO appearing registered).
-  // A fresh wallet must scan the whole commitment tree to find its own coins;
-  // on a busy public testnet this legitimately takes many minutes. Registration
-  // built on a stale (partially-synced) view is rejected by the node (custom
-  // error 138), so gate strictly on sync completion rather than racing it.
+  // Gate on our own sync predicate, polled — deliberately NOT on
+  // `wallet.waitForSyncedState()`. That observable filters on the SDK's
+  // unshielded completion (`appliedId === highestTransactionId`), which cannot
+  // resolve once a stored cursor sits above a frozen cap: it timed out for the
+  // whole 1850s window, the run logged "proceeding cautiously", and it then
+  // submitted an initialize built on a zswap tree that had aborted applying an
+  // event — the node answered `Invalid Transaction: Custom error: 170`.
+  // Registration and calls built on a stale or desynchronized view are rejected
+  // by the node (138, 170), so no sync now means no submit, not a warning.
   const syncDeadline = Date.now() + Number(process.env.SYNC_WAIT_MS ?? 30 * 60_000);
   let synced = false;
+  const syncStartedAt = Date.now();
   while (!synced && Date.now() < syncDeadline) {
-    try {
-      await Promise.race([
-        wallet.waitForSyncedState(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('attempt timeout')), 3 * 60_000)),
-      ]);
-      synced = true;
-    } catch {
-      await new Promise((r) => setTimeout(r, 5_000));
-    }
+    const state = await rx.firstValueFrom(wallet.state().pipe(rx.take(1)));
+    synced = isWalletSynced(state);
+    if (!synced) await new Promise((r) => setTimeout(r, 10_000));
   }
-  if (synced) logger.info('Wallet fully synced — coin metadata is now authoritative.');
-  else logger.warn('Sync did not complete within SYNC_WAIT_MS; proceeding cautiously.');
+  if (!synced) {
+    throw new Error(
+      `Wallet never reached a synced state within ${Math.round((Date.now() - syncStartedAt) / 1000)}s — refusing to register or submit on a view the node will reject. ` +
+        'If the log shows "values inserted non-linearly", the checkpoint cursor has drifted: run `npm run deploy:heal <network>` before retrying.',
+    );
+  }
+  logger.info(`Wallet fully synced in ${Math.round((Date.now() - syncStartedAt) / 1000)}s — coin metadata is now authoritative.`);
 
   let coins = await readCoins(wallet);
   const unregistered = coins.filter((c) => !c.meta.registeredForDustGeneration);
