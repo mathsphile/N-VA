@@ -294,6 +294,10 @@ async function main(): Promise<void> {
         credentialsRecorded = d.credentialCount.toString() !== '0';
         contractAddress = pending.contractAddress;
         deploymentTx = pending.deploymentTx;
+        // Private state is keyed by contract address, and the provider throws if
+        // it has not been bound before use — so a resumed run binds it before
+        // its first call, as both reference deployments do in their join() path.
+        providers.privateStateProvider.setContractAddress(contractAddress);
         handle = await withDeadline(
           'findDeployedContract',
           findDeployedContract(providers, {
