@@ -1,0 +1,33 @@
+{
+  "name": "nova-contract",
+  "version": "1.0.0",
+  "description": "NØVA Compact contract — private credential commitments and proof attestations on Midnight",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "prebuild": "npm run compact",
+    "build": "rm -rf dist && tsc --project tsconfig.build.json && cp -Rf ./src/managed ./dist/managed && cp ./src/nova.compact ./dist",
+    "compact": "command -v compact >/dev/null 2>&1 && compact compile src/nova.compact ./src/managed/nova || echo 'Skipping compact compilation (using pre-compiled artifacts in src/managed)'",
+    "pretypecheck": "npm run compact",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@midnight-ntwrk/compact-js": "2.5.1",
+    "@midnight-ntwrk/compact-runtime": "0.16.0",
+    "@midnight-ntwrk/midnight-js-protocol": "4.1.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0"
+  }
+}
