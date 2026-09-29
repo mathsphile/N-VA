@@ -36,6 +36,7 @@ Sources, in the order they produced work:
 | 17 | "A resumed deploy never bound the contract address to private state." | The resume path calls `setContractAddress` before its first call, as both reference deployments do in their `join()` path. | `040a029` |
 | 18 | "'Tests pass inside 5 minutes' was a claim with no mechanism." | GitHub Actions runs `npm ci` → lint → typecheck → test → build → assert the deployed registry is `LIVE`, under `timeout-minutes: 5`; the same gate measures 35.0s locally. | `.github/workflows/ci.yml` |
 | 19 | "Explorer transaction links were dead." | Probed: `preprod.midnightexplorer.com` serves only `/address/<addr>` — `/transaction/`, `/tx/`, `/block/` and `/extrinsic/` all return 404. The verifier and the README now link only paths that resolve. | `scripts/verify-deployment.ts` |
+| 20 | "CI went red on a commit that only touched the README." | Not the README: `next build` fetched font metadata from Google at build time, and when that response came back unusable the loader threw `Cannot read properties of null` inside `@next/font/dist/google/loader.js`. Inter and JetBrains Mono are now self-hosted variable `woff2` (SIL OFL, attributed) loaded through `next/font/local` — a deterministic offline build, and no visitor request to Google. | `build(fonts): self-host Inter and JetBrains Mono` |
 
 ## Feedback from the form — honest status
 

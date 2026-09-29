@@ -637,6 +637,14 @@ completed `success` in **107 s** wall clock on `9c22216`, every step passing —
 from the regenerated lockfile and the live-registry assertion against the public indexer. That is
 ~2.8× headroom inside the 5-minute budget.
 
+**The second run went red, and it was a real bug.** `c986b47` — a commit that touched only the
+README — failed at **Build** in 65 s. The cause was `next build` fetching font metadata from Google
+at build time: when that response came back unusable, the loader threw
+`TypeError: Cannot read properties of null (reading '1')` inside `@next/font/dist/google/loader.js`.
+Inter and JetBrains Mono are now self-hosted (`src/app/fonts`, variable `woff2`, SIL OFL, attributed)
+and loaded through `next/font/local`, so the build has **no network dependency** — and a visitor's
+browser no longer makes a request to Google, which suits a privacy product.
+
 Two honest caveats:
 
 - The suite is **2 tests** (`contract/src/test/metadata.test.ts`, ~1 s). It pins circuit metadata and
