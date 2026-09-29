@@ -29,8 +29,13 @@ Sources, in the order they produced work:
 | 10 | "Docs claimed privacy properties the contract does not enforce." | The contract has **no nullifier set**, so "one person, one claim" is an off-chain registry policy. That claim was removed; the limits are now stated in the README privacy model and carried in the audit record. | [README.md](../README.md), [AUDIT.md](AUDIT.md) |
 | 11 | "Fake attribution in demo data." | `attestedBy` and labels no longer credit a contract that was not involved; the demo seed moved out of `public/` so a fixture can never be served by the deployed app. | `f3e7432`, docs(tools) commit |
 | 12 | "Preview `initialize` failed with an empty object." | Failures that arrive as non-`Error` values are now dumped structurally (`dumpError`, `where`/`message`/`detail`) rather than printing `{}`. The preprod run of the same path produced the actionable `expected instance of StateValue`, which is what identified the WASM runtime split below. | `af27e60` |
-| 13 | "`initialize` aborts with `expected instance of StateValue`." | Cause: `midnight-js-protocol@4.1.1` pins `onchain-runtime-v3@3.0.0` exactly while `compact-runtime@0.16.0` floats `^3.0.0` to **3.1.1** — two WASM instances, so the contract built state with one copy's class and the SDK's `_assertClass` tested against the other. Pinned down to a single hoisted 3.0.0 copy via `overrides` + dedupe. | `package.json`, lockfile (in review) |
+| 13 | "`initialize` aborts with `expected instance of StateValue`." | Cause: `midnight-js-protocol@4.1.1` pins `onchain-runtime-v3@3.0.0` exactly while `compact-runtime@0.16.0` floats `^3.0.0` to **3.1.1** — two WASM instances, so the contract built state with one copy's class and the SDK's `_assertClass` tested against the other. Pinned down to a single hoisted 3.0.0 copy via `overrides` + dedupe. **Proven closed:** the registry is now `LIVE`. | `a03a169` |
 | 14 | "Secret material sits in local files." | `.gitignore` landed **before** any source commit; checkpoints, `.env*`, `midnight-level-db/`, `.deploy/` and `logs/` are ignored, cache files are mode `0600` in a `0700` directory, and no seed material is logged. Verified before pushing: no secret paths in the tree and no seed value present in any committed file. | first commit |
+| 15 | "The node rejected `initialize` with `Custom error: 170`." | Not a chain fault: the fee gate waited on `waitForSyncedState()` (whose unshielded predicate can't resolve against a frozen cap), timed out after 1850s, logged `proceeding cautiously` and submitted on a zswap tree that had aborted an event. Absence of sync is now **fatal**, not a warning. | `fc035b9` |
+| 16 | "Calibration only understood the dust tree." | The expected/received oracle is generic: `checkpointCursor` plus per-tree parsing now repairs the **shielded** cursor too. Preprod converged in two probes — dust `+1`, shielded `+1` — then reported `Wallet fully synced`. | `ffa3ca7` |
+| 17 | "A resumed deploy never bound the contract address to private state." | The resume path calls `setContractAddress` before its first call, as both reference deployments do in their `join()` path. | `040a029` |
+| 18 | "'Tests pass inside 5 minutes' was a claim with no mechanism." | GitHub Actions runs `npm ci` → lint → typecheck → test → build → assert the deployed registry is `LIVE`, under `timeout-minutes: 5`; the same gate measures 35.0s locally. | `.github/workflows/ci.yml` |
+| 19 | "Explorer transaction links were dead." | Probed: `preprod.midnightexplorer.com` serves only `/address/<addr>` — `/transaction/`, `/tx/`, `/block/` and `/extrinsic/` all return 404. The verifier and the README now link only paths that resolve. | `scripts/verify-deployment.ts` |
 
 ## Feedback from the form — honest status
 
@@ -56,8 +61,14 @@ Three of them do map onto real UX surface, with this status:
 - **Holder entropy reuse in the scripts** — the deploy path derives from one seed for multiple roles;
   fine for a testnet deployer, wrong for production custody.
 - **`localStorage` vault is obfuscation** — passphrase-gated, not server-side-safe.
-- **The runtime pin is not yet proven end-to-end** — `initialize` has to clear before this row closes.
-- **No CI** — there is no workflow file. The app is deployed to
+- ~~The runtime pin is not yet proven end-to-end~~ — **closed**: after pinning one
+  `onchain-runtime-v3` copy, `initialize` executed and the registry reads `LIVE` on preprod with one
+  credential and one attestation indexed.
+- **CI now exists, coverage does not** — `.github/workflows/ci.yml` runs lint, typecheck, test,
+  build and a live-registry assertion under a 5-minute budget (35.0s locally). The suite is still
+  **2 tests**: circuit metadata and bindings; the policy parser, credential path and proof engine
+  remain uncovered.
+- **No workflow file existed before that** — the app is deployed to
   [Vercel](https://nova-git-main-nandini-das-projects.vercel.app/) from `main`, but Deployment
   Protection still redirects anonymous visitors to `vercel.com/sso-api`, so it is not demo-able
   yet — `vercel.json` and `.nvmrc` were added to make the build reproducible and

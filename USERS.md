@@ -55,10 +55,11 @@ would fail the exact cross-check the judging criteria describe.
 
 ## What would close this gap
 
-The requirement is satisfiable as soon as the registry goes live — the contract is already published
-on preprod ([`02f0cde4…`](https://preprod.midnightexplorer.com/address/02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada))
-and `initialize` is the remaining blocker, diagnosed as a WASM runtime split now pinned in
-`package.json`.
+The requirement is satisfiable **now that the registry is live**: the preprod contract
+([`02f0cde4…`](https://preprod.midnightexplorer.com/address/02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada))
+has already run publish → `initialize` → `registerCredential` → `attest` and reads back from the
+indexer as `status: LIVE`, `credentialCount 1`, `proofCount 1`. What separates this table from a
+passing check is no longer infrastructure — it is real holders running those flows.
 
 Each row then becomes evidence rather than a claim, because all three fields are machine-checkable:
 

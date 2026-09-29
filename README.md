@@ -1,18 +1,24 @@
-# N-VA — Private Proof Network
+# NOVA — Private Proof Network
 
 Prove eligibility and reputation without surrendering the data behind it.
-
+  
 **[Live dApp →](https://nova-git-main-nandini-das-projects.vercel.app/)** ·
 **[Demo video →](https://youtu.be/XoNDS-X3bCk)** ·
+**[X @nightnovapp →](https://x.com/nightnovapp)** ·
 [Preprod contract →](https://preprod.midnightexplorer.com/address/02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada) ·
 [Proposal](PROPOSAL.md) · [Usage](docs/USAGE.md)
 
+![CI](https://github.com/mathsphile/N-VA/actions/workflows/ci.yml/badge.svg)
+
 Apache-2.0 · Midnight · Rise In — *New Moon to Full* (target: **Level 5, Full Moon**)
 
-> The live URL is currently behind Vercel **Deployment Protection** — an anonymous visitor gets a
+> **The preprod registry is `LIVE`.** Publish, `initialize`, `registerCredential` and `attest` have
+> all executed on-chain — [`02f0cde4…`](https://preprod.midnightexplorer.com/address/02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada)
+> reads back from the indexer as `credentialCount 1`, `proofCount 1`.
+> The live URL is still behind Vercel **Deployment Protection** — an anonymous visitor gets a
 > `302` to `vercel.com/sso-api`, not the app. See
 > [Hosting](#hosting-vercel) for the one toggle that opens it, and
-> [What Is Not Verified](#what-is-not-verified) for what that means for the links above.
+> [Status](#status) for exactly what is verified and what is still outstanding.
 
 ---
 
@@ -32,8 +38,9 @@ Apache-2.0 · Midnight · Rise In — *New Moon to Full* (target: **Level 5, Ful
 - [App Architecture](#app-architecture)
 - [Quick Start](#quick-start)
 - [Hosting (Vercel)](#hosting-vercel)
+- [Continuous integration](#continuous-integration)
 - [Scripts](#scripts)
-- [What Is Not Verified](#what-is-not-verified)
+- [Status](#status)
 
 ---
 
@@ -58,9 +65,11 @@ a boolean result, a proof attestation and the scope it asked about.
 |---|---|---|
 | Live dApp | [nova-git-main-nandini-das-projects.vercel.app](https://nova-git-main-nandini-das-projects.vercel.app/) | Vercel, `main` branch. **Currently behind Vercel Authentication** — see [Hosting](#hosting-vercel) |
 | Demo walkthrough | [youtu.be/XoNDS-X3bCk](https://youtu.be/XoNDS-X3bCk) | project walkthrough video |
-| Preprod contract | [`02f0cde4…`](https://preprod.midnightexplorer.com/address/02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada) | `BOOTSTRAPPING`, 0 credentials / 0 proofs indexed |
+| Preprod contract | [`02f0cde4…`](https://preprod.midnightexplorer.com/address/02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada) | **`LIVE`** — 1 credential, 1 proof indexed ([state](https://preprod.midnightexplorer.com/address/02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada)) |
+| Initialize transaction | `91caece98fa1e8f31c576c423ea847b37cb65869b7ea682161d0001ade5e40b9` | bootstrapped the registry into `LIVE` — see the contract page |
+| X (project account) | [@nightnovapp](https://x.com/nightnovapp) | updates and announcements |
 | Preview contract | [`9b11813f…`](https://preview.midnightexplorer.com/address/9b11813f66286fd2806517a0e076ca19898ceb1ded13ba765b3bd77fcf167f55) | `BOOTSTRAPPING`, `initialize` still failing |
-| Publish transaction | [`06fd574d…`](https://preprod.midnightexplorer.com/tx/06fd574d6c8e23e20606130a2a579b3e171d72272e23625fb9da3c1799ff8ade) | the preprod publish that did land |
+| Publish transaction | `06fd574d6c8e23e20606130a2a579b3e171d72272e23625fb9da3c1799ff8ade` | the preprod publish that landed |
 | Public verification | `/verify/<id>` on the live app | needs no account or shared secret |
 | Product proposal | [PROPOSAL.md](PROPOSAL.md) | problem, privacy claims and limits, rollout |
 | Usage guide | [docs/USAGE.md](docs/USAGE.md) | run locally, connect a wallet, deploy, verify, troubleshoot |
@@ -139,14 +148,27 @@ what a screen shows is the chain's number, not a local counter.
 
 | Network | Contract address | Status | Evidence |
 |---|---|---|---|
-| **Midnight Preprod** | [`02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada`](https://preprod.midnightexplorer.com/address/02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada) | `BOOTSTRAPPING` — published, `initialize` not yet applied | publish tx [`06fd574d6c8e23e20606130a2a579b3e171d72272e23625fb9da3c1799ff8ade`](https://preprod.midnightexplorer.com/tx/06fd574d6c8e23e20606130a2a579b3e171d72272e23625fb9da3c1799ff8ade) |
+| **Midnight Preprod** | [`02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada`](https://preprod.midnightexplorer.com/address/02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada) | **`LIVE`** — initialized and exercised end to end | publish `06fd574d6c8e23e20606130a2a579b3e171d72272e23625fb9da3c1799ff8ade` · initialize `91caece98fa1e8f31c576c423ea847b37cb65869b7ea682161d0001ade5e40b9` (block `c1ec562c…`) · registerCredential `c13a38994debaa94aefb0d277abaea0d5908654b79acc57732c884f6dd0a4d17` · attest `ab212a78266fba46653473ede1d2de7885250f90dadd52c7de6affc2452a2d68` — all listed under the [contract page](https://preprod.midnightexplorer.com/address/02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada) |
 | **Midnight Preview** | [`9b11813f66286fd2806517a0e076ca19898ceb1ded13ba765b3bd77fcf167f55`](https://preview.midnightexplorer.com/address/9b11813f66286fd2806517a0e076ca19898ceb1ded13ba765b3bd77fcf167f55) | `BOOTSTRAPPING` — published, `initialize` failed client-side | deploy tx `e99195b8…` (see [docs/AUDIT.md](docs/AUDIT.md)) |
 
 Read back with `npm run deploy:verify preprod <address>` — it decodes the contract's public state
-straight from the indexer. Both rows above were produced by that command, not by the deploy script
-that wrote them: `credentialCount 0`, `proofCount 0`, empty accumulator, `(no operations indexed)`.
-The contract is published but the registry is not live yet, so there is no credential or proof
-activity to point at — the `initialize` blocker is [documented below](#what-is-not-verified).
+straight from the indexer, independently of the deploy script that wrote it. Measured on 2026-09-30:
+
+```
+status               : LIVE
+credentialCount      : 1
+proofCount           : 1
+credentialAccumulator: 5af062a25d662922d827ca02…
+lastAttestation      : 6493674cda0f90fd16fa924b…
+lastAttestationScope : nova:test:hackspire-grant
+```
+
+So publish, `initialize`, `registerCredential` and `attest` have all executed on-chain against the
+deployed contract, and the counters the UI renders are the chain's own. The run's stage timings:
+wallet sync **12.3s**, dust readiness **20.0s**, submit **1.9s**, initialize + circuit exercise
+**54.2s**. Two gaps remain honest: the indexer scan did not resolve a numeric block height for the
+publish tx (recorded as `pending-indexer` in `.deploy/preprod.json`), and **preview is still
+`BOOTSTRAPPING`** — its `initialize` was never re-attempted after the runtime pin.
 
 **Deployer (preprod):** `mn_addr_preprod1qlzf6h6zjhyms2p3y4vu5p278zqkqqaqk9nualrndghgxywseres5hth5u`
 
@@ -597,6 +619,33 @@ calls Qwen when a server-side `QWEN_API_KEY` is present, and nothing rate-limits
 
 ---
 
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on every push to `main`, on pull requests, and on manual dispatch.
+
+| Job | Steps | Budget |
+|---|---|---|
+| `verify` | `npm ci` → `lint` → `typecheck` → `test` → `build` → assert the deployed registry is `LIVE` | `timeout-minutes: 5` |
+| `deploy` | Vercel production deploy, only when `VERCEL_TOKEN` + `VERCEL_PROJECT_ID` secrets exist | `timeout-minutes: 5` |
+
+The 5-minute requirement is **enforced by the workflow**, not claimed in prose: `timeout-minutes: 5`
+fails the run if the gate overruns. The same gate measures **35.0 s** locally
+(`lint && typecheck && test && build`) — the headroom a runner needs for `npm ci`.
+
+Two honest caveats:
+
+- The suite is **2 tests** (`contract/src/test/metadata.test.ts`, ~1 s). It pins circuit metadata and
+  bindings against the compiled artifacts; it does not yet cover the policy parser, the credential
+  commitment path or the proof engine. That is the weakest part of this pipeline.
+- The `LIVE` assertion reads the **public preprod indexer** with no secrets, so CI fails loudly if the
+  deployed registry is reset or stops decoding — `grep -Eq 'status[[:space:]]+: LIVE'` against real
+  `npm run deploy:verify` output.
+
+The `deploy` job reports *skipped* rather than failing when those secrets are absent, because Vercel's
+own Git integration already deploys `main`.
+
+---
+
 ## Scripts
 
 | Script | Purpose |
@@ -615,32 +664,42 @@ calls Qwen when a server-side `QWEN_API_KEY` is present, and nothing rate-limits
 
 ---
 
-## What Is Not Verified
+## Status
 
-- **The registry is not live on either network.** `initialize` fails client-side before any
-  proof request is made. The preprod run reaches `[7/8]` and aborts with
-  `expected instance of StateValue`; the cause is a WASM runtime split between
-  `compact-runtime` (which floated `onchain-runtime-v3` to 3.1.1) and `midnight-js-protocol`
-  (which pins 3.0.0), so contract state built by one copy is rejected by the other's
-  `_assertClass`. It is pinned to a single 3.0.0 copy in `package.json` + lockfile now; the
-  redeploy had not cleared `initialize` at the time of writing.
-- **No end-to-end credential → proof → verify run.** With no live registry, nothing has been
-  registered or attested on-chain, so `credentialCount` and `proofCount` are both `0`.
-- **Screenshots are machine-checked, not visually certified.** The six captures in
-  [App Screenshots](#app-screenshots) are real renders of the local production build in
-  **simulation mode** — verified distinct by SHA-256 and by file size (149–706 KB, so not Chrome
-  error pages, and the 594 KB landing shot proves the WebGL scene rasterised). This environment
-  cannot open images, so nobody has eyeballed layout, contrast or text wrapping, and the hosted
-  ledger-configured screens are not among them.
-- **The hosted app cannot be opened anonymously.** It is deployed from `main` at
-  https://nova-git-main-nandini-das-projects.vercel.app/, but Vercel Deployment Protection answers
-  `302 → vercel.com/sso-api` for `/` and `/dashboard` (verified 2026-09-30), so neither a reviewer
-  nor I have confirmed which mode that build shipped in — `NEXT_PUBLIC_MIDNIGHT_MODE` and
-  `NEXT_PUBLIC_MIDNIGHT_CONTRACT_ID` are baked at build time and are only observable through the
-  running app. No on-chain flow is claimed *from that URL* in this README.
-- **No CI pipeline in-repo.** The Vercel build is the only automated build; there is no workflow
-  file, so there is no test badge to show.
-- **The demo video is not verified from here.** It is the project's own recording; this environment
-  cannot stream or view it, so nothing above attests to which state it shows. Since `initialize` had
-  not cleared when the README was written, any ledger-bound credential → proof → verify flow in it
-  would be from a local run rather than the published preprod contract.
+### Working — and how to check each line
+
+| Claim | Evidence anyone can reproduce |
+|---|---|
+| Registry is **`LIVE`** on preprod | `npm run deploy:verify preprod 02f0cde4…` → `status: LIVE`, `credentialCount 1`, `proofCount 1`, non-empty accumulator. Or open the [contract page](https://preprod.midnightexplorer.com/address/02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada). |
+| Whole lifecycle ran on-chain | publish `06fd574d…` · initialize `91caece9…` (block `c1ec562c…`) · registerCredential `c13a3899…` · attest `ab212a78…`, scope `nova:test:hackspire-grant` |
+| Deploys survive a crash | Run 2 logged `Resuming existing deployment — NOT re-publishing` against `.deploy/pending-preprod.json`; no second contract was created |
+| Sync is resumable, not heroic | resumed sync **12.3 s** and dust readiness **20.0 s**, against hours of genesis replay before the checkpoint work |
+| The repo is green | `npm run lint`, `typecheck`, `test` and `build` all exit 0; the whole gate measures **35.0 s** locally and CI caps it at 5 minutes |
+| Wallet path is real | injected `window.midnight` DApp Connector (Lace / 1AM); with no provider the UI reports that instead of inventing an account |
+| It is hosted | Vercel build from `main` at the URL above |
+
+### Outstanding — not claimed as done
+
+- **Preview is still `BOOTSTRAPPING`.** `9b11813f…` was published but its `initialize` was never
+  re-attempted after the runtime pin. Only preprod is live.
+- **No numeric block height for the publish tx.** The indexer scan didn't resolve it, so
+  `.deploy/preprod.json` records `pending-indexer` rather than a guessed number.
+- **Reviewers cannot open the hosted app yet.** Vercel Deployment Protection answers
+  `302 → vercel.com/sso-api` (verified 2026-09-30). One dashboard toggle fixes it — see
+  [Hosting](#hosting-vercel). Until then, the live URL is a claim, not a demo.
+- **Screenshots are simulation-mode and machine-checked only.** Six distinct captures, 149–706 KB,
+  verified by SHA-256 and size (the 594 KB landing shot proves the WebGL scene rasterised) — but no
+  human has viewed them, and `.env.local` is now in ledger mode, so a ledger-backed re-capture is
+  owed.
+- **The test suite is 2 tests.** Circuit metadata and bindings only; the policy parser, credential
+  commitment path and proof engine are uncovered.
+- **The CI badge reads "unknown" until the first run lands** on this push.
+- **Level 5 user validation is unmet.** 0 of 58 form wallet entries are Midnight-format, so none
+  resolves on the indexer. With the registry now live, the missing rows are obtainable for real:
+  holder address + transaction hash + indexed height ([USERS.md](USERS.md)).
+- **Contract-level risks are unchanged:** no nullifier set (uniqueness is registry policy, not
+  enforcement), `initialize` front-runnable, passphrase-gated `localStorage` vault is obfuscation,
+  single-seed role derivation in the scripts, and the `postcss`/`next` advisory left unfixed pending
+  an authorised toolchain bump. Full list: [docs/AUDIT.md](docs/AUDIT.md).
+- **The demo video is not verifiable from here** — this environment cannot stream or view it, so the
+  README attests only to the on-chain state above, not to what the recording shows.

@@ -84,23 +84,33 @@ Boundaries we will not oversell:
 
 ## Status (what is and is not true today)
 
-- Contracts are **published** on preprod (`02f0cde4…`) and preview (`9b11813f…`); both read back
-  from the indexer as `BOOTSTRAPPING` with zero credentials and zero proofs indexed.
-- `initialize` is **not yet passing**. Current cause is a WASM runtime split between
-  `compact-runtime` and `midnight-js-protocol`; it is pinned to one copy in `package.json` and the
-  redeploy has to clear before the registry can be called live.
-- Therefore **no end-to-end credential → proof → verification has been recorded on-chain**, and the
-  user-validation requirement is not met: the collected feedback (58 responses) contains **zero**
-  Midnight preprod wallet addresses — see [USERS.md](USERS.md).
+- The **preprod registry is live**: contract
+  [`02f0cde4…`](https://preprod.midnightexplorer.com/address/02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada)
+  read back from the indexer as `status: LIVE`, `credentialCount 1`, `proofCount 1`, accumulator
+  `5af062a25d662922…`, attestation `6493674cda0f90fd…` for scope `nova:test:hackspire-grant`.
+- **The lifecycle has run on-chain**: publish `06fd574d…` → initialize `91caece9…` →
+  registerCredential `c13a3899…` → attest `ab212a78…`, all finalized. That closes the earlier
+  `expected instance of StateValue` failure (a split WASM runtime, now pinned to one copy).
+- **Preview is not live.** `9b11813f…` is published but still `BOOTSTRAPPING`; `initialize` was never
+  re-attempted there.
+- **The hosted build is not anonymously reachable** — Vercel Deployment Protection redirects
+  reviewers to a login page until it is switched off.
+- The **user-validation requirement is still unmet**: the collected feedback (58 responses) contains
+  **zero** Midnight preprod wallet addresses — see [USERS.md](USERS.md). The on-chain path to create
+  those rows now exists.
 
 ## Rollout
 
-1. Clear `initialize` on preprod; run the five circuits and record the first real attestations.
-2. Pilot with a small closed group of verifiers and holders, each row in `USERS.md` filled from
+1. ~~Clear `initialize` on preprod; run the circuits and record the first attestations.~~ **Done** —
+   the registry is `LIVE` and the circuits have been exercised on-chain.
+2. Re-capture screenshots against the ledger-configured build, and open the hosted app by switching
+   off Vercel Deployment Protection (or issuing a bypass).
+3. Pilot with a small closed group of verifiers and holders, each row in `USERS.md` filled from
    their own connected wallet and indexed transaction hash.
-3. Close the two contract-level gaps — operator-gated bootstrap and a nullifier set — before any
+4. Close the two contract-level gaps — operator-gated bootstrap and a nullifier set — before any
    non-testnet issuance.
-4. Open the developer route for third-party policy scopes.
+5. Broaden the test suite beyond circuit metadata, and add the policy parser and proof engine.
+6. Open the developer route for third-party policy scopes.
 
 ## Team goal
 
