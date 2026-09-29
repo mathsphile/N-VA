@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head><meta charset="utf-8" /><title>NØVA preview seed</title></head>
+  <body>
+    <p>Seeding a local demo proof for preview/verification screenshots…</p>
+    <script>
+      // Dev-only utility: writes a completed demo proof + consumed scope to
+      // localStorage, then redirects to the verification result view. All data
+      // is generated here in the browser; the values are structurally identical
+      // to what the real proof engine emits (SHA-256 of the same domain
+      // separation inputs).
+      (async () => {
+        const enc = new TextEncoder();
+        const digest = async (...parts) => {
+          const bufs = parts.map((p) => (typeof p === 'string' ? enc.encode(p) : p));
+          const total = bufs.reduce((n, b) => n + b.length, 0);
+          const buf = new Uint8Array(total);
+          let off = 0;
+          for (const b of bufs) { buf.set(b, off); off += b.length; }
+          const h = await crypto.subtle.digest('SHA-256', buf);
+          return Array.from(new Uint8Array(h)).map((x) => x.toString(16).padStart(2, '0')).join('');
+        };
+        const secret = await digest('nova:demo:', 'holder-secret');
+        const attestation = await digest('nova:attestation:', secret, 'campaign:hackspire-grant-2026', 'demo-entropy');
+        const now = new Date().toISOString();
+        const proof = {
+          id: 'proof_demo01',
+          requestId: 'req_hackspire_grant',
+          claims: [
+            { requirement: 'student', label: 'Student', satisfied: true },
+            { requirement: 'age_18', label: 'Age > 18', satisfied: true },
+            { requirement: 'region_eligible', label: 'Eligible country', satisfied: true },
+            { requirement: 'unique_applicant', label: 'Unique applicant', satisfied: true },
+          ],
+          commitmentsRevealed: false,
+          attestation,
+          generatedAt: now,
+          mode: 'simulation',
+          attestedBy: 'NØVA local proof engine',
+        };
+        localStorage.setItem('nova.proofs.v1', JSON.stringify([proof]));
+        localStorage.setItem('nova.attested.v1', JSON.stringify(['campaign:hackspire-grant-2026']));
+        location.replace('/verify/req_hackspire_grant?proof=' + proof.id);
+      })();
+    </script>
+  </body>
+</html>
