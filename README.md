@@ -630,7 +630,12 @@ calls Qwen when a server-side `QWEN_API_KEY` is present, and nothing rate-limits
 
 The 5-minute requirement is **enforced by the workflow**, not claimed in prose: `timeout-minutes: 5`
 fails the run if the gate overruns. The same gate measures **35.0 s** locally
-(`lint && typecheck && test && build`) — the headroom a runner needs for `npm ci`.
+(`lint && typecheck && test && build`).
+
+**First run on GitHub: green.** [Run 36646595950](https://github.com/mathsphile/N-VA/actions/runs/36646595950)
+completed `success` in **107 s** wall clock on `9c22216`, every step passing — including `npm ci`
+from the regenerated lockfile and the live-registry assertion against the public indexer. That is
+~2.8× headroom inside the 5-minute budget.
 
 Two honest caveats:
 
@@ -693,7 +698,9 @@ own Git integration already deploys `main`.
   owed.
 - **The test suite is 2 tests.** Circuit metadata and bindings only; the policy parser, credential
   commitment path and proof engine are uncovered.
-- **The CI badge reads "unknown" until the first run lands** on this push.
+- **CI passes, but on 2 tests.** The first run is green (107 s, every step) — see
+  [Continuous integration](#continuous-integration). What is weak is the suite behind it, not the
+  pipeline.
 - **Level 5 user validation is unmet.** 0 of 58 form wallet entries are Midnight-format, so none
   resolves on the indexer. With the registry now live, the missing rows are obtainable for real:
   holder address + transaction hash + indexed height ([USERS.md](USERS.md)).
