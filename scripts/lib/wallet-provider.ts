@@ -223,6 +223,21 @@ const isProgressComplete = (progress: unknown): boolean => {
     : false;
 };
 
+/**
+ * The unshielded stream cannot use the SDK predicate: it demands
+ * `|highestTransactionId - appliedId| === 0`, and on preprod that cap froze at
+ * transaction 569484 while the stored cursor legitimately climbed to 569512 —
+ * a condition no amount of syncing can satisfy. A connected cursor at or above
+ * the reported cap has consumed everything the indexer serves. Clamping the
+ * cursor back down instead would re-serve ~28 already-applied transactions and
+ * reproduce the double-apply abort we just fixed for dust.
+ */
+const isUnshieldedComplete = (progress: unknown): boolean => {
+  if (!progress || typeof progress !== 'object') return false;
+  const p = progress as { appliedId?: bigint; highestTransactionId?: bigint; isConnected?: boolean };
+  return p.isConnected === true && BigInt(p.appliedId ?? -1n) >= BigInt(p.highestTransactionId ?? 0n);
+};
+
 export const isWalletSynced = (state: unknown): boolean => isSynced(state);
 
 const isSynced = (state: unknown): boolean => {
@@ -234,7 +249,7 @@ const isSynced = (state: unknown): boolean => {
   return (
     isProgressComplete(s.shielded?.state?.progress) &&
     isProgressComplete(s.dust?.state?.progress) &&
-    isProgressComplete(s.unshielded?.progress)
+    isUnshieldedComplete(s.unshielded?.progress)
   );
 };
 
