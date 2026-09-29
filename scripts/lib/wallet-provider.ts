@@ -140,24 +140,26 @@ function releaseCheckpointLock(): void {
  * Serialize the wallet's current (possibly mid-sync) state into the cache
  * file. `probe` mode (CHECKPOINT_WRITE=0) measures a resume without moving
  * the cursor, which the calibration driver relies on.
+ *
+ * The cursor is persisted exactly as the wallet reports it: `appliedIndex` is
+ * the last event the state applied, so a chunk that applied nothing still
+ * carries our load-time +1 — that phantom is measured and rejected by
+ * sync-chunks rather than written back as truth, and `deploy:heal` repairs a
+ * file that drifted before that guard existed.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function writeCheckpointEnvelope(logger: Logger, state: any, network: string, seed: string): string {
   const file = checkpointFile(network, seed);
   if (process.env.CHECKPOINT_WRITE === '0') return file;
   acquireCheckpointLock(network, seed);
-  // Undo this process's own load-time bump so the file keeps the "last
-  // applied" convention it was read with (see persistedCursorIsBumped).
-  const settle = (serialized: string): string =>
-    persistedCursorIsBumped ? shiftCursor(serialized, -1n) : serialized;
   const envelope: CheckpointEnvelope = {
     version: CHECKPOINT_VERSION,
     network,
     savedAt: new Date().toISOString(),
-    dust: settle(state.dust.serialize()),
-    shielded: settle(state.shielded.serialize()),
+    dust: state.dust.serialize(),
+    shielded: state.shielded.serialize(),
     unshielded: state.unshielded.serialize(),
-    dustAppliedIndex: String(BigInt(state.dust.progress?.appliedIndex ?? 0n) - (persistedCursorIsBumped ? 1n : 0n)),
+    dustAppliedIndex: String(state.dust.progress?.appliedIndex ?? 0n),
   };
   fs.mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
   const tmp = `${file}.tmp`;
