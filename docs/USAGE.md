@@ -86,6 +86,27 @@ Stages printed by `deploy:ledger`, with timings, from the 2026-09-30 preprod run
 [4/8] Wallet connect + sync  [8/8] Record deployment
 ```
 
+## Host on Vercel
+
+The repo is set up for it: `vercel.json` (Next.js framework, `npm run build`, `npm install`,
+`bom1`, response headers) and `.nvmrc` (Node 22, inside `engines: >=22 <26`). Import the GitHub
+repo, and set these **build-time** environment variables in the dashboard — `NEXT_PUBLIC_*` values
+are inlined during the build, so changing one means redeploying:
+
+`NEXT_PUBLIC_MIDNIGHT_MODE` · `NEXT_PUBLIC_MIDNIGHT_NETWORK_ID` · `NEXT_PUBLIC_MIDNIGHT_INDEXER_URL`
+· `NEXT_PUBLIC_MIDNIGHT_NODE_URL` · `NEXT_PUBLIC_MIDNIGHT_CONTRACT_ID`
+
+Do **not** add any seed, keystore or private-state password: those belong to the local operator
+scripts and are never browser-visible by design. The contract's `prebuild` skips the Compact
+toolchain when it is absent and uses the committed artifacts, so the build needs nothing extra
+installed. A serverless function cannot reach a local proof server, so proving stays on the operator
+machine — hosted pages read indexer state and, in `simulation` mode, prove nothing on-chain.
+
+The current deployment is https://nova-git-main-nandini-das-projects.vercel.app/ . If it returns
+Vercel's login page instead of the app, turn off **Settings → Deployment Protection → Vercel
+Authentication** (or issue a bypass). Before you do: `/api/policy` is then reachable by anyone, and
+it has no rate limit — it calls Qwen only when `QWEN_API_KEY` is configured server-side.
+
 ### Troubleshooting
 
 | Symptom | Cause and fix |

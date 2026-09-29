@@ -57,8 +57,12 @@ Three of them do map onto real UX surface, with this status:
   fine for a testnet deployer, wrong for production custody.
 - **`localStorage` vault is obfuscation** — passphrase-gated, not server-side-safe.
 - **The runtime pin is not yet proven end-to-end** — `initialize` has to clear before this row closes.
-- **No screenshots, no hosted URL, no CI** — `scripts/capture-screenshots.sh` exists and
-  `docs/screenshots/` is empty; there is no `vercel.json` and no workflow file.
+- **No screenshots, no CI** — `scripts/capture-screenshots.sh` exists and `docs/screenshots/` is
+  empty; there is no workflow file. The app is deployed to
+  [Vercel](https://nova-git-main-nandini-das-projects.vercel.app/) from `main`, but Deployment
+  Protection still redirects anonymous visitors to `vercel.com/sso-api`, so it is not demo-able
+  yet — `vercel.json` and `.nvmrc` were added to make the build reproducible and
+  [README → Hosting](../README.md#hosting-vercel) documents the dashboard settings it needs.
 
 ## Cycle
 

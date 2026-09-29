@@ -2,13 +2,24 @@
 
 Prove eligibility and reputation without surrendering the data behind it.
 
+**[Live dApp →](https://nova-git-main-nandini-das-projects.vercel.app/)** ·
+**[Demo video →](https://youtu.be/XoNDS-X3bCk)** ·
+[Preprod contract →](https://preprod.midnightexplorer.com/address/02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada) ·
+[Proposal](PROPOSAL.md) · [Usage](docs/USAGE.md)
+
 Apache-2.0 · Midnight · Rise In — *New Moon to Full* (target: **Level 5, Full Moon**)
+
+> The live URL is currently behind Vercel **Deployment Protection** — an anonymous visitor gets a
+> `302` to `vercel.com/sso-api`, not the app. See
+> [Hosting](#hosting-vercel) for the one toggle that opens it, and
+> [What Is Not Verified](#what-is-not-verified) for what that means for the links above.
 
 ---
 
 ## Contents
 
 - [Overview](#overview)
+- [Live Demo and Quick Links](#live-demo-and-quick-links)
 - [Privacy Model](#privacy-model)
 - [How It Works](#how-it-works)
 - [Protocol Feedback Loop](#protocol-feedback-loop)
@@ -18,6 +29,7 @@ Apache-2.0 · Midnight · Rise In — *New Moon to Full* (target: **Level 5, Ful
 - [App Surface](#app-surface)
 - [App Architecture](#app-architecture)
 - [Quick Start](#quick-start)
+- [Hosting (Vercel)](#hosting-vercel)
 - [Scripts](#scripts)
 - [What Is Not Verified](#what-is-not-verified)
 
@@ -35,6 +47,27 @@ It never holds a name, a date of birth, a location or a holder identifier. The v
 a boolean result, a proof attestation and the scope it asked about.
 
 **Core principle: verify the claim, not the data.**
+
+---
+
+## Live Demo and Quick Links
+
+| Resource | Link | Notes |
+|---|---|---|
+| Live dApp | [nova-git-main-nandini-das-projects.vercel.app](https://nova-git-main-nandini-das-projects.vercel.app/) | Vercel, `main` branch. **Currently behind Vercel Authentication** — see [Hosting](#hosting-vercel) |
+| Demo walkthrough | [youtu.be/XoNDS-X3bCk](https://youtu.be/XoNDS-X3bCk) | project walkthrough video |
+| Preprod contract | [`02f0cde4…`](https://preprod.midnightexplorer.com/address/02f0cde4d7df1789e5b578ebba225e0360e34ad163fed20ebf7764d2f687dada) | `BOOTSTRAPPING`, 0 credentials / 0 proofs indexed |
+| Preview contract | [`9b11813f…`](https://preview.midnightexplorer.com/address/9b11813f66286fd2806517a0e076ca19898ceb1ded13ba765b3bd77fcf167f55) | `BOOTSTRAPPING`, `initialize` still failing |
+| Publish transaction | [`06fd574d…`](https://preprod.midnightexplorer.com/tx/06fd574d6c8e23e20606130a2a579b3e171d72272e23625fb9da3c1799ff8ade) | the preprod publish that did land |
+| Public verification | `/verify/<id>` on the live app | needs no account or shared secret |
+| Product proposal | [PROPOSAL.md](PROPOSAL.md) | problem, privacy claims and limits, rollout |
+| Usage guide | [docs/USAGE.md](docs/USAGE.md) | run locally, connect a wallet, deploy, verify, troubleshoot |
+| Audit record | [docs/AUDIT.md](docs/AUDIT.md) | findings applied vs risks left open |
+| Feedback documentation | [docs/FEEDBACK.md](docs/FEEDBACK.md) | heard → changed, tied to commits |
+| User validation | [USERS.md](USERS.md) | 58 exported responses and the checks run against them |
+| Feedback form | [forms.gle/s5ErHwUmUsfARjpo6](https://forms.gle/s5ErHwUmUsfARjpo6) | collection point |
+| Review tracker | [Google Sheet](https://docs.google.com/spreadsheets/d/12_wo1pkArdF5-j2_LvKGpiHiZExpY--uO0Sw5xErdG8/edit?gid=37793418) | source of the USERS.md export |
+| Preprod faucet | [midnight-tmnight-preprod.nethermind.dev](https://midnight-tmnight-preprod.nethermind.dev/) | tNIGHT for a deployer or pilot wallets |
 
 ---
 
@@ -114,6 +147,10 @@ The contract is published but the registry is not live yet, so there is no crede
 activity to point at — the `initialize` blocker is [documented below](#what-is-not-verified).
 
 **Deployer (preprod):** `mn_addr_preprod1qlzf6h6zjhyms2p3y4vu5p278zqkqqaqk9nualrndghgxywseres5hth5u`
+
+**Live app:** [nova-git-main-nandini-das-projects.vercel.app](https://nova-git-main-nandini-das-projects.vercel.app/) —
+one Vercel build from `main`. Which network and which contract it reads are fixed at build time by
+`NEXT_PUBLIC_MIDNIGHT_*` (see [Hosting](#hosting-vercel)), and it is not reachable anonymously yet.
 
 | Service | Endpoint | Purpose |
 |---|---|---|
@@ -235,6 +272,43 @@ npm run deploy:verify preprod <contract address>
 
 ---
 
+## Hosting (Vercel)
+
+Live at **https://nova-git-main-nandini-das-projects.vercel.app/**, built from `main`.
+
+Repo side (committed): `vercel.json` declares the Next.js framework, `npm run build`, an
+`npm install` install command, `bom1` functions and conservative response headers
+(`nosniff`, `DENY` framing, strict referrer, no camera/mic/geolocation). `.nvmrc` pins Node 22,
+inside the package's `engines` range (`>=22 <26`). No CSP is set — a nonce-based policy needs
+`style-src` work on the Tailwind/inline-style output, so it is deliberately not claimed here.
+
+The root build is `npm run build --workspace=nova-contract && next build`; the contract's
+`prebuild` runs `compact` **only if the toolchain is on PATH** and otherwise uses the compiled
+artifacts committed under `contract/src/managed/nova/`, so Vercel needs no Compact install.
+
+**Environment variables to set in the Vercel dashboard** (Project → Settings → Environment
+Variables). They are baked at build time, so a change needs a redeploy:
+
+| Variable | Value |
+|---|---|
+| `NEXT_PUBLIC_MIDNIGHT_MODE` | `simulation` or `ledger` |
+| `NEXT_PUBLIC_MIDNIGHT_NETWORK_ID` | `preprod` |
+| `NEXT_PUBLIC_MIDNIGHT_INDEXER_URL` | `https://indexer.preprod.midnight.network/api/v4/graphql` |
+| `NEXT_PUBLIC_MIDNIGHT_NODE_URL` | `https://rpc.preprod.midnight.network` |
+| `NEXT_PUBLIC_MIDNIGHT_CONTRACT_ID` | the full preprod address from the deployment table below |
+
+Never add `MIDNIGHT_WALLET_SEED`, `MIDNIGHT_PREPROD_SEED` or `MIDNIGHT_PRIVATE_STATE_PASSWORD` to
+Vercel. Those are deploy-operator secrets for the local scripts; anything prefixed
+`NEXT_PUBLIC_` is readable by every visitor's browser.
+
+**One setting blocks the demo:** Vercel → Project → Settings → **Deployment Protection** → turn
+*Vercel Authentication* off (or add a bypass secret to the URL). Until then, anonymous requests —
+including a reviewer's — are redirected to `vercel.com/sso-api`, so the app cannot be opened.
+Know the tradeoff before switching it off: `/api/policy` becomes reachable by anyone, it only
+calls Qwen when a server-side `QWEN_API_KEY` is present, and nothing rate-limits it today.
+
+---
+
 ## Scripts
 
 | Script | Purpose |
@@ -267,5 +341,15 @@ npm run deploy:verify preprod <contract address>
 - **No screenshots.** No captures are committed, and this environment cannot inspect images;
   `scripts/capture-screenshots.sh` exists to produce them headless and they will be added only
   after they have actually been taken.
-- **No hosted deployment.** There is no `vercel.json` and no CI workflow in this repository, so
-  there is no live URL or build badge to claim.
+- **The hosted app cannot be opened anonymously.** It is deployed from `main` at
+  https://nova-git-main-nandini-das-projects.vercel.app/, but Vercel Deployment Protection answers
+  `302 → vercel.com/sso-api` for `/` and `/dashboard` (verified 2026-09-30), so neither a reviewer
+  nor I have confirmed which mode that build shipped in — `NEXT_PUBLIC_MIDNIGHT_MODE` and
+  `NEXT_PUBLIC_MIDNIGHT_CONTRACT_ID` are baked at build time and are only observable through the
+  running app. No on-chain flow is claimed *from that URL* in this README.
+- **No CI pipeline in-repo.** The Vercel build is the only automated build; there is no workflow
+  file, so there is no test badge to show.
+- **The demo video is not verified from here.** It is the project's own recording; this environment
+  cannot stream or view it, so nothing above attests to which state it shows. Since `initialize` had
+  not cleared when the README was written, any ledger-bound credential → proof → verify flow in it
+  would be from a local run rather than the published preprod contract.

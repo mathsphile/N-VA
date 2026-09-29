@@ -109,6 +109,9 @@ attributes disclosed per completed verification trending to the minimum the deci
 
 ## Links
 
+Live dApp: https://nova-git-main-nandini-das-projects.vercel.app/ (Vercel, `main`; behind
+Deployment Protection until it is switched off — see [README → Hosting](README.md#hosting-vercel)) ·
+Demo video: https://youtu.be/XoNDS-X3bCk ·
 Repository: https://github.com/mathsphile/N-VA ·
 Feedback form: https://forms.gle/s5ErHwUmUsfARjpo6 ·
 User review tracker: https://docs.google.com/spreadsheets/d/12_wo1pkArdF5-j2_LvKGpiHiZExpY--uO0Sw5xErdG8/edit?gid=37793418 ·
