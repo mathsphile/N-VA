@@ -1,0 +1,29 @@
+# deps
+node_modules/
+.next/
+dist/
+out/
+
+# env & secrets — never commit
+.env*
+!.env.example
+
+# compact build artifacts committed intentionally under contract/src/managed
+*.log
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+
+# local private state db (midnight-js level provider) — contains operator
+# keys and signing material; NEVER commit
+midnight-level-db/
+**/private-state-db/
+
+# wallet sync checkpoints — contain wallet private state; NEVER commit
+.wallet-cache/
+
+# deployment records
+.deploy/
+
+# local run logs directory (log files already ignored via *.log)
+logs/
