@@ -142,22 +142,24 @@ async function main(): Promise<void> {
   }
   await provider.stop().catch(() => {});
 
-  // Report progress in the checkpoint's own convention — "the last event the
-  // state actually applied". A restored process counts one higher (the
-  // load-time bump is ours, not an applied event) and, in probe mode, nothing
-  // was persisted to correct it. Counting that phantom as progress is exactly
-  // what let ~26 dead chunks look alive to the supervisor on preprod.
-  if (!writingCheckpoint && wasRestoredFromCheckpoint()) cursor -= 1n;
+  // A restored wallet reports its cursor one event above what its state applied
+  // until the first new event arrives, because the +1 that makes the inclusive
+  // indexer replay correct is ours, not the SDK's. Counting that phantom as
+  // progress is what let ~26 dead chunks look alive on preprod, so progress is
+  // measured against the bumped baseline instead of against the stored cursor.
+  const phantom = wasRestoredFromCheckpoint() ? 1n : 0n;
+  const appliedReal = lastDustIndex > startIndex + phantom ? lastDustIndex - startIndex - phantom : 0n;
+  if (!writingCheckpoint) cursor = lastDustIndex - phantom;
   const gained = cursor > startIndex ? cursor - startIndex : 0n;
 
   if (synced) {
     logger.info(`✅ Wallet fully synced (dust appliedIndex ${cursor}). Ready to deploy.`);
     process.exit(0);
   }
-  logger.info(`Chunk finished (${reason}): dust advanced ${startIndex} → ${cursor} (+${gained}).`);
-  logger.info(`chunk result: reason=${reason} applied=${gained} cursor=${cursor}`);
-  if (gained < minProgressEvents && startIndex !== 0n) {
-    logger.error('Sync stalled: this chunk gained fewer than the minimum progress events. Not looping — inspect indexer/chain state.');
+  logger.info(`Chunk finished (${reason}): dust advanced ${startIndex} → ${cursor} (+${gained} stored, +${appliedReal} applied).`);
+  logger.info(`chunk result: reason=${reason} applied=${appliedReal} cursor=${cursor}`);
+  if (appliedReal < minProgressEvents && startIndex !== 0n) {
+    logger.error('Sync stalled: this chunk applied fewer events than the minimum. Not looping — calibrate with `npm run deploy:heal` or inspect indexer connectivity.');
     process.exit(1);
   }
   process.exit(75);
