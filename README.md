@@ -186,7 +186,7 @@ one Vercel build from `main`. Which network and which contract it reads are fixe
 
 ---
 
-## User Validation (Level 5)
+## User Validation 
 
 Full data, checks and row-level detail: **[USERS.md](USERS.md)**.
 
